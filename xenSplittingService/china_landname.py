@@ -18,11 +18,9 @@ class landname(object):
 
     def load_landname(self):  # read and write csv file
         """
-        load a list which is of two dimension
-        with lines in list and columns in sub_lists
         """
         try:
-            csvfile = open('xingzhengqu.csv', 'r', newline='')
+            csvfile = open('data/xingzhengqu.csv', 'r', newline='')
             spamreader = csv.reader(csvfile,
                                     delimiter=',',
                                     quotechar='|'
@@ -31,19 +29,18 @@ class landname(object):
         except:
             return 0
 
-    def update_landname(self):
+    def update_landname(self, table):
         """
-        save a list which is of two dimension to the file
-        with lines in list and columns in sub_lists
+        write the updated landname table to the csv file
         """
         try:
-            csvfile = open('source_file/xingzhengqu.csv', 'w', newline='')
+            csvfile = open('data/xingzhengqu.csv', 'w', newline='')
             spamwriter = csv.writer(csvfile,
                                     delimiter=',',
                                     quotechar='|',
                                     quoting=csv.QUOTE_MINIMAL
                                     )
-            spamwriter.writerows()
+            spamwriter.writerows(table)
             csvfile.close()
             return 1
         except:
@@ -106,60 +103,60 @@ class landname(object):
             else:
                 for location in self.province:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.city:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.town:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.district:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.selfgov:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.flag:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.island:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
                 for location in self.etcloc:
                     if location[0] == name:
-                        return (location[0]+location[1])
+                        return location[0]+location[1]
         else:
             for location in self.province:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             for location in self.city:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             # for location in self.town:
             #     if location[0] == name:
-            #         return (location[0]+location[1])
+            #         return location[0]+location[1]
             # for location in self.district:
             #     if location[0] == name:
-            #         return (location[0]+location[1])
+            #         return location[0]+location[1]
             for location in self.selfgov:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             for location in self.flag:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             for location in self.island:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             for location in self.etcloc:
                 if location[0] == name:
-                    return (location[0]+location[1])
+                    return location[0]+location[1]
             return None
 
 
 if __name__ == '__main__':
     import time
     start_time = time.time()
-    #------------------------------------
+    # -----------------------------------
     test_loc = landname()
     print(test_loc.table)
     print(test_loc.city)

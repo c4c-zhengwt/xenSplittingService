@@ -1,10 +1,9 @@
 # -*- encoding: UTF-8 -*-
 # In this document firm name and remarks are segmented
 # --------------------------
-import cherrypy
 import jieba
 import re
-import china_landname
+from .china_landname import landname
 # --------------------------
 
 
@@ -14,7 +13,7 @@ import china_landname
 # ------------------------------------
 class ContentSplit(object):
     def __init__(self):
-        jieba.load_userdict("../data/pre_usr_identified_dict")
+        jieba.load_userdict("data/pre_usr_identified_dict")
 
     def is_eng_name(self, name):
         name = re.sub(r'\W', "", name)
@@ -61,12 +60,12 @@ class ContentSplit(object):
         namelist = list(item_text)
         while '\u3000' in namelist:
             namelist.remove('\u3000')
-        location = china_landname.landname()
+        locationchecker = landname()
         nameline = []
-        # ---------------------------------------------------------- derive location
+        # ---------------------------------------------------------- derive locationchecker
         if '分公司' not in namelist:
-            if location.checkLandname(namelist[0]) != None:
-                nameline.append(location.checkLandname(namelist[0]))
+            if locationchecker.checkLandname(namelist[0]) != None:
+                nameline.append(locationchecker.checkLandname(namelist[0]))
                 del namelist[0]
             else:
                 if '中国' not in namelist:
@@ -76,34 +75,34 @@ class ContentSplit(object):
                         if bindex - aindex > 1:
                             for index in range(aindex+1, bindex, 1):
                                 if len(nameline) == 0:
-                                    if location.checkLandname(namelist[index]) != None:
-                                        nameline.append(location.checkLandname(namelist[index]))
+                                    if locationchecker.checkLandname(namelist[index]) != None:
+                                        nameline.append(locationchecker.checkLandname(namelist[index]))
                                         del namelist[index]
                     else:
                         if '(' in namelist:
                             aindex = namelist.index('(')
                             for index in range(aindex + 1, len(namelist), 1):
                                 if len(nameline) == 0:
-                                    if location.checkLandname(namelist[index]) != None:
-                                        nameline.append(location.checkLandname(namelist[index]))
+                                    if locationchecker.checkLandname(namelist[index]) != None:
+                                        nameline.append(locationchecker.checkLandname(namelist[index]))
                                         del namelist[index]
                         else:
                             for index in range(1, len(namelist), 1):
                                 if len(nameline) == 0:
-                                    if location.checkLandname(namelist[index]) != None:
-                                        nameline.append(location.checkLandname(namelist[index]))
+                                    if locationchecker.checkLandname(namelist[index]) != None:
+                                        nameline.append(locationchecker.checkLandname(namelist[index]))
                                         del namelist[index]
                             if len(nameline) == 0:
                                 nameline.append('-')
-                            pass    # no location
+                            pass    # no locationchecker
                     if len(nameline) == 0:
                         nameline.append('-')
                 else:
                     namelist.remove('中国')
                     for index in range(len(namelist)):
                         if len(nameline) == 0:
-                            if location.checkLandname(namelist[index]) != None:
-                                nameline.append(location.checkLandname(namelist[index]))
+                            if locationchecker.checkLandname(namelist[index]) != None:
+                                nameline.append(locationchecker.checkLandname(namelist[index]))
                                 del namelist[index]
                     if len(nameline) == 0:
                         nameline.append('-')
@@ -115,25 +114,25 @@ class ContentSplit(object):
                     if '公司' in namelist[i]:
                         formerindex = i
                 for j in range(formerindex+1, tailindex, 1):
-                    if location.checkLandname(namelist[j]) != None:
-                        nameline.append(location.checkLandname(namelist[j]))
+                    if locationchecker.checkLandname(namelist[j]) != None:
+                        nameline.append(locationchecker.checkLandname(namelist[j]))
                         del namelist[j]
                 if len(nameline) == 0:
-                    if location.checkLandname(namelist[0]) != None:
-                        nameline.append(location.checkLandname(namelist[0]))
+                    if locationchecker.checkLandname(namelist[0]) != None:
+                        nameline.append(locationchecker.checkLandname(namelist[0]))
                         del namelist[0]
                     else:
                         for index in range(1, formerindex, 1):
                             if len(nameline) == 0:
-                                if location.checkLandname(namelist[index]) != None:
-                                    nameline.append(location.checkLandname(namelist[index]))
+                                if locationchecker.checkLandname(namelist[index]) != None:
+                                    nameline.append(locationchecker.checkLandname(namelist[index]))
                                     del namelist[index]
                 if len(nameline) == 0:
                     nameline.append('-')
             else:
                 if len(nameline) == 0:
-                    if location.checkLandname(namelist[0]) != None:
-                        nameline.append(location.checkLandname(namelist[0]))
+                    if locationchecker.checkLandname(namelist[0]) != None:
+                        nameline.append(locationchecker.checkLandname(namelist[0]))
                         del namelist[0]
                 if len(nameline) == 0:
                     nameline.append('-')
@@ -166,7 +165,7 @@ class ContentSplit(object):
             nameline.append(item)
         return nameline
 
-    def split_mome(self, content):
+    def split_msg(self, content):
         item_text = jieba.cut(str(content))
         item_text = list(item_text)
         for i in range(len(item_text)):
@@ -185,58 +184,16 @@ class ContentSplit(object):
         return ' '.join(item_text)
 
 
-# ------------------------------------
-class SplittingService(object):
-    def __init__(self):
-        pass
-
-@cherrypy.expose
-class splitting(object):
-    def __init__(self):
-        self.splitter = ContentSplit()
-
-    @cherrypy.tools.accept(media='text/plain')
-    def GET(self, content):
-        return self.splitter.split(content)
-
-@cherrypy.expose
-class splitfirmname(object):
-    def __init__(self):
-        self.splitter = ContentSplit()
-
-    @cherrypy.tools.accept(media='text/plain')
-    def GET(self, content):
-        return self.splitter.split_firmname(content)
-
-@cherrypy.expose
-class splitremarks(object):
-    def __init__(self):
-        self.splitter = ContentSplit()
-
-    @cherrypy.tools.accept(media='text/plain')
-    def GET(self, content):
-        return self.splitter.split_mome(content)
-
-
 if __name__ == '__main__':
-    import random
-    import string
-    # ------------------------------------
-
-    root = SplittingService()
-    root.splitfirmname = splitfirmname()
-    root.splitremarks = splitremarks()
-    root.splitting = splitting()
-
-    conf = {
-        '/': {
-            'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-            'tools.sessions.on': True,
-            'tools.response_headers.on': True,
-            'tools.response_headers.headers': [('Content-Type', 'text/plain')],
-            }
-        }
-    cherrypy.quickstart(root, '/', conf)
+    import time
+    start_time = time.time()
+    # -----------------------------------
 
     # -----------------------------------
     # -----------------------------------
+    end_time = time.time()
+    duration = end_time - start_time
+    hour = int(duration)//3600
+    minutes = int(duration) // 60 - 60 * hour
+    seconds = duration % 60
+    print('\nRunning time: %d h %d m %f s' % (hour, minutes, seconds))
