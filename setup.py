@@ -43,15 +43,14 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version=find_version('xenSplittingService', '__init__.py'),
 
-    description='The splitting service splitting company names '
-                  'and bill memos is designed for Xencio',
+    description='',
     long_description=long_description,
 
     # The project's main homepage.
     url='https://github.com/mingotang/xenSplittingService',
 
     # Author details
-    author='The Xencio developers',
+    author='Mingo Tang',
     author_email='mtang024@163.com',
 
     # Choose your license
@@ -83,7 +82,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='xencio wordsplit service',
+    keywords='wordsplit service',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -114,7 +113,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'data': ['xingzhengqu.csv', 'pre_usr_identified_dict'],
+        'data': ['XingZhenQu.csv', 'pre_usr_identified_dict'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

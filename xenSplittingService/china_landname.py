@@ -1,9 +1,9 @@
 # -*- encoding: UTF-8 -*-
 # In this document a landname object is set up and names in china can be manipulated
-import csv
+from xenSplittingService.service_configures import load_csv, save_csv_2d
 
 
-class landname(object):
+class LandName(object):
     def __init__(self):
         self.table = []
         self.province = []
@@ -14,40 +14,27 @@ class landname(object):
         self.flag = []
         self.island = []
         self.etcloc = []
-        self.startup()
+        self.table = load_csv('../data/XingZhenQu.csv')[1:]
+        self.__startup__()
 
-    def load_landname(self):  # read and write csv file
-        """
-        """
-        try:
-            csvfile = open('data/xingzhengqu.csv', 'r', newline='')
-            spamreader = csv.reader(csvfile,
-                                    delimiter=',',
-                                    quotechar='|'
-                                    )
-            return [var for var in spamreader]
-        except:
-            return 0
+    # def update_landname(self, table):
+    #     """
+    #     write the updated landname table to the csv file
+    #     """
+    #     try:
+    #         csvfile = open('data/XingZhenQu.csv', 'w', newline='')
+    #         spamwriter = csv.writer(csvfile,
+    #                                 delimiter=',',
+    #                                 quotechar='|',
+    #                                 quoting=csv.QUOTE_MINIMAL
+    #                                 )
+    #         spamwriter.writerows(table)
+    #         csvfile.close()
+    #         return 1
+    #     except:
+    #         return 0
 
-    def update_landname(self, table):
-        """
-        write the updated landname table to the csv file
-        """
-        try:
-            csvfile = open('data/xingzhengqu.csv', 'w', newline='')
-            spamwriter = csv.writer(csvfile,
-                                    delimiter=',',
-                                    quotechar='|',
-                                    quoting=csv.QUOTE_MINIMAL
-                                    )
-            spamwriter.writerows(table)
-            csvfile.close()
-            return 1
-        except:
-            return 0
-
-    def startup(self):
-        self.table = self.load_landname()[1:]
+    def __startup__(self):
         for line in self.table:
             if line[1][-1:] == '区':
                 self.district.append([line[1][0:len(line[1])-1], '区', line[0][0:3], line[0][3:6]])
@@ -70,7 +57,7 @@ class landname(object):
             else:
                 self.etcloc.append([line[1], '', line[0][0:3], line[0][3:6]])
 
-    def checkLandname(self, name):
+    def check_landname(self, name):
         if len(name) >= 3:
             if name[-1:] == '市':
                 for location in self.city:
@@ -157,7 +144,7 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
-    test_loc = landname()
+    test_loc = LandName()
     print(test_loc.table)
     print(test_loc.city)
     print(test_loc.province)
@@ -167,7 +154,7 @@ if __name__ == '__main__':
     print(test_loc.flag)
     print(test_loc.island)
     print(test_loc.etcloc)
-    print(test_loc.checkLandname('通州'))
+    print(test_loc.check_landname('兴安盟'))
     # -----------------------------------
     end_time = time.time()
     duration = end_time - start_time
