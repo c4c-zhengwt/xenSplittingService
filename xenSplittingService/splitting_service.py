@@ -25,37 +25,49 @@ class ContentSplit(object):
             self.checker.append('File data/pre_usr_identified_dict does not exit, but this error '
                                 'does not affect service function that much')
         # initial company_service_type_whitelist
-        self.company_service_type_whitelist = set()
-        try:
-            __file_content__ = load_csv('../data/Company ServiceType Whitelist.csv')
-            for __line__ in __file_content__:
-                self.company_service_type_whitelist.update(__line__)
-            self.company_service_type_whitelist = frozenset(self.company_service_type_whitelist)
-        except:
-            self.checker.append('Whitelist data/Company ServiceType Whitelist.csv can not be loaded correctly')
-        # initial company_type_whitelist
-        self.company_type_whitelist = set()
-        try:
-            __file_content__ = load_csv('../data/Company Type Whitelist.csv')
-            for __line__ in __file_content__:
-                self.company_type_whitelist.update(__line__)
-            self.company_type_whitelist = frozenset(self.company_type_whitelist)
-        except:
-            self.checker.append('Whitelist data/Company Type Whitelist.csv can not be loaded correctly')
-        self.company_keyword_blacklist = set()
-        try:
-            __file_content__ = load_csv('../data/Company KeyWord Blacklist.csv')
-            for __line__ in __file_content__:
-                self.company_keyword_blacklist.update(__line__)
-            self.company_keyword_blacklist = frozenset(self.company_keyword_blacklist)
-        except:
-            self.checker.append('Blacklist data/Company KeyWord Blacklist.csv can not be loaded correctly')
+        self.company_service_type_whitelist = \
+            self.__load_config_list__('../data/package_com_service_type_whitelist.csv',
+                                      '../data/User_defined_company_service_type_whitelist.csv',
+                                      warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
+                                                        'can not be loaded correctly')
+        # initial company type whitelist
+        self.company_type_whitelist = \
+            self.__load_config_list__('../data/package_com_type_whitelist.csv',
+                                      '../data/User_defined_company_type_whitelist.csv',
+                                      warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
+                                                        'can not be loaded correctly')
+        # initial company_keyword_blacklist
+        self.company_keyword_blacklist = \
+            self.__load_config_list__('../data/package_com_keyword_blacklist.csv',
+                                      '../data/User_defined_company_keyword_blacklist.csv',
+                                      warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
+                                                        'can not be loaded correctly')
+        # add name in company type white list to jieba dict so that they can be outputed.
         for __item__ in self.company_type_whitelist:
             jieba.add_word(__item__, freq=100, tag='n')
         self.__show_checkers__()
 
-    def __add_into_list__(self, new_item, target_list, typo_list=frozenset(), force_add=False):
-        if new_item not in target_list:
+    def __load_config_list__(self, package_defined_csv, usr_defined_csv, warning_pack_info=''):
+        __config_list__ = set()
+        try:
+            __file_content__ = load_csv(package_defined_csv)
+            for __line__ in __file_content__:
+                __config_list__.update(__line__)
+        except:
+            self.checker.append(warning_pack_info)
+        try:
+            __file_content__ = load_csv(usr_defined_csv)
+            for __line__ in __file_content__:
+                __config_list__.update(__line__)
+        except FileNotFoundError:
+            __file__ = open(usr_defined_csv, 'w', encoding='utf-8')
+            __file__.close()
+        __config_list__ = frozenset(__config_list__)
+        return __config_list__
+
+    # adding words to blacklists and whitelist
+    def __add_into_list__(self, new_item, target_list, origin_list, typo_list=frozenset(), force_add=False):
+        if new_item not in origin_list:
             if new_item not in typo_list or force_add:
                 target_list.append(new_item)
                 return True
@@ -64,26 +76,51 @@ class ContentSplit(object):
         else:
             return False
 
-    def add_company_type(self, new_company_type, force_add = False):
-        if type(new_company_type) == str:
-            added_company_type = re.sub(r'\W', '', new_company_type)
-            new_list = list(self.company_type_whitelist)
-            self.__add_into_list__(added_company_type, new_list,
-                                   self.company_service_type_whitelist, force_add=force_add)
-            if len(new_list) > len(self.company_type_whitelist):
-                save_csv_2d('../data/Company Type Whitelist.csv', [[var] for var in new_list])
-                self.company_type_whitelist = frozenset(new_list)
-        elif type(new_company_type) == list:
-            new_list = list(self.company_type_whitelist)
-            for item in set(new_company_type):
-                self.__add_into_list__(re.sub(r'\W', '', item), new_list,
-                                       self.company_service_type_whitelist, force_add=force_add)
-            if len(new_list) > len(self.company_type_whitelist):
-                save_csv_2d('../data/Company Type Whitelist.csv', [[var] for var in new_list])
-                self.company_type_whitelist = frozenset(new_list)
+    def __specified_adding_type__(self, new_term, target_set, file_path,
+                                  typo_list=frozenset(), force_add_config=False):
+        new_list = list()
+        if type(new_term) is str:
+            self.__add_into_list__(re.sub(r'\W', '', new_term), new_list, target_set,
+                                   typo_list, force_add=force_add_config)
+        elif type(new_term) is list:
+            for __item__ in set(new_term):
+                self.__add_into_list__(re.sub(r'\W', '', __item__), new_list, target_set,
+                                       typo_list=typo_list, force_add=force_add_config)
         else:
             pass
+        new_list = set(new_list)
+        if len(new_list) > 0:
+            try:
+                __usr_defined__ = load_csv(file_path)
+                for __line__ in __usr_defined__:
+                    new_list.update(__line__)
+            except FileNotFoundError:
+                pass
+            save_csv_2d(file_path, [[var] for var in new_list])
+        new_list.update(target_set)
+        return frozenset(new_list)
 
+    def add_company_type(self, new_company_type, force_add=False):
+        self.company_type_whitelist = \
+            self.__specified_adding_type__(new_company_type, self.company_type_whitelist,
+                                           '../data/User_defined_company_type_whitelist.csv',
+                                           typo_list=self.company_service_type_whitelist,
+                                           force_add_config=force_add)
+
+    def add_company_service_type(self, new_company_service_type, force_add=False):
+        self.company_service_type_whitelist = \
+            self.__specified_adding_type__(new_company_service_type,
+                                           self.company_service_type_whitelist,
+                                           '../data/User_defined_company_service_type_whitelist.csv',
+                                           typo_list=self.company_type_whitelist,
+                                           force_add_config=force_add)
+
+    def add_blocked_company_keyword(self, new_block_word, force_add=False):
+        self.company_keyword_blacklist = \
+            self.__specified_adding_type__(new_block_word,
+                                           self.company_keyword_blacklist,
+                                           '../data/User_defined_company_keyword_blacklist.csv',
+                                           force_add_config=force_add)
 
     def __show_checkers__(self):
         if len(self.checker) >= 1:
@@ -225,6 +262,12 @@ class ContentSplit(object):
             if item in self.company_type_whitelist:
                 nameline[1] = item
                 namelist.remove(item)
+        # ---------------------------------------------------------- Identify company service types
+        nameline.append('-')
+        for item in namelist:
+            if item in self.company_service_type_whitelist:
+                nameline[1] = item
+                namelist.remove(item)
         # ---------------------------------------------------------- merging
         indexlist = list()
         skiplist = list()
@@ -271,8 +314,13 @@ if __name__ == '__main__':
     start_time = time.time()
     # -----------------------------------
     splitter = ContentSplit()
-    # splitter.add_company_type('test01')
+    print(splitter.company_type_whitelist, type(splitter.company_type_whitelist))
+    print(splitter.company_service_type_whitelist, type(splitter.company_service_type_whitelist))
+    print(splitter.company_keyword_blacklist, type(splitter.company_keyword_blacklist))
+    splitter.add_company_type('test01', force_add=True)
     # splitter.add_company_type(['test02', 'test03'])
+    splitter.add_company_service_type(['test02'])
+    splitter.add_blocked_company_keyword('test01')
     print(splitter.split('无锡市外服人力资源有限公司'))
     print(splitter.split_firmname('无锡市外服人力资源有限公司'))
     # -----------------------------------

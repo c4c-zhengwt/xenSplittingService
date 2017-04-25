@@ -9,7 +9,6 @@
 # Always prefer setuptools over distutils
 import re
 import os
-import sys
 import codecs
 
 from setuptools import setup, find_packages
@@ -113,7 +112,12 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'data': ['XingZhenQu.csv', 'pre_usr_identified_dict'],
+        'data': ['XingZhenQu.csv',
+                 'pre_usr_identified_dict',
+                 'package_com_keyword_blacklist.csv'
+                 'package_com_service_type_whitelist.csv'
+                 'package_com_type_whitelist.csv'
+                 ],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

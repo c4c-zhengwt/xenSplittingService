@@ -38,14 +38,12 @@ Terminal安装
 
 返回以空格分割的单词串，单词按位置具有意义如下
 
-- 第一位置：公司地域，若为空则为 "-"
-- 第二位置：公司类型，若为空则为 "-"
+- 第一位置：公司地域，如北京市，若为空则为 "-"
+- 第二位置：公司类型，如有限公司，若为空则为 "-" （配置文件待补充）
+- 第三位置：公司经营类型，如超市，若为空则为 "-" （配置文件待补充）
 
-> 注：公司类型由 `data/Company Type Whitelist.csv`定义
-
-
-待实现功能：
-- 获取公司经营范围白名单之后增强splitfirmname
+> 注：公司类型由 `data/package_com_type_whitelist.csv`定义
+> 用户自定义公司类型配置文件为 `data/User_defined_company_type_whitelist.csv`，用户可以使用类方法添加，添加方法见`修改配置文件`
 
 
 ## 修改配置文件
@@ -53,10 +51,56 @@ Terminal安装
 
 本切词服务共包含以下配置文件：
 
+---
 
-splittingdict.txt 为分词字典所需要的自定义参考字典；
+- 包内置配置文件：（该类配置文件在安装时会覆盖前一个版本的配置文件）
+    - data/package_com_keyword_blacklist.csv 分词输出的黑名单，黑名单当中的内容将不会被输出
+    - data/package_com_service_type_whitelist.csv 公司经营服务类型的白名单
+    - data/package_com_type_whitelist.csv  公司类型的白名单
+    - data/pre_usr_identified_dict 切词之前的配置文件
+    - data/XingZhenQu.csv 中国行政区名字文件
 
-xingzhengqu.csv是中国行政区清单
+### 内置配置文件修改方式：
 
+    data/package_com_keyword_blacklist.csv
+
+这三个文件为逗号分隔值文件，修改之时可以在文件末新建一行上面输入多个值并用（英文）逗号分开，也可以在文件末每行输入一个参数
+
+    data/pre_usr_identified_dict
+
+该文件为文本文件，修改之时需要遵守一定的输入参数规格：单词（空格）频率（空格）类型。如 `备付金 100 n` 其中n为单词的英文语法中类型，其他如动词（v）、地名（s）。事实上本文件在分词包开发之时已做过调整，不建议修改。
+
+    data/XingZhenQu.csv
+
+该文件为逗号分隔值文件，按行政区代码（英文逗号）名称的格式构建，不建议修改。
+
+---
+
+- 用户自定义配置文件：
+    - data/User_defined_company_keyword_blacklist.csv 分词输出的黑名单，黑名单当中的内容将不会被输出
+    - data/User_defined_company_service_type_whitelist.csv 公司经营服务类型的白名单
+    - data/User_defined_company_type_whitelist.csv 公司类型的白名单
+
+### 用户自定义配置文件修改方式：
+
+直接修改：如内置配置文件
+
+类方法修改：
+
+    import xenSplittingService as xSS
+    splitter = xSS.ContentSplit()
+    splitter.add_company_type(param)
+    splitter.add_company_service_type(param)
+    splitter.add_blocked_company_keyword(param, force_add=True)
+
+其中param可以是单个字符串如：`'人力资源'` ，也可以是字符串组成的列表如：`['人力资源', '外服']`。如果配置文件当中已经存在相关字段或者类似文件当中存在相关字段则不会加入用户自定义配置文件，若要强行加入请使用可选参数 `force_add=True`
+
+> 类似配置文件指的是 company type 和 company service type 这两个文件相类似。
+
+
+
+## 待实现功能：
+
+- 英文公司名字和备注的分词
 
 
