@@ -6,7 +6,7 @@ from xenSplittingService.service_configures import *
 
 class LandName(object):
     def __init__(self):
-        self.path_china_land_names_csv = os.path.join('..', 'data', 'XingZhenQu.csv')
+        self.path_china_land_names_csv = os.path.join('data', 'XingZhenQu.csv')
         self.table = []
         self.province = []
         self.city = []
@@ -18,7 +18,6 @@ class LandName(object):
         self.etcloc = []
         self.table = load_csv(self.path_china_land_names_csv)[1:]
         self.__startup__()
-
 
     def __startup__(self):
         for line in self.table:

@@ -114,9 +114,10 @@ setup(
     package_data={
         'data': ['XingZhenQu.csv',
                  'pre_usr_identified_dict',
-                 'package_com_keyword_blacklist.csv'
-                 'package_com_service_type_whitelist.csv'
-                 'package_com_type_whitelist.csv'
+                 'package_com_keyword_blacklist.csv',
+                 'package_com_service_type_whitelist.csv',
+                 'package_com_type_whitelist.csv',
+                 'package_com_partition_expression.csv'
                  ],
     },
 
