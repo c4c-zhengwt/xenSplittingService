@@ -19,5 +19,5 @@ def test():
     splitter.add_company_service_type(['test02'])
     splitter.add_blocked_company_keyword('test01')
     print(splitter.split('无锡市外服人力资源有限公司'))
-    print(splitter.split_firmname('无锡市外服人力资源有限公司'))
+    print(splitter.split_firmname('无锡市外服人力资源有限公司', enable_english_output=True))
     return 0
