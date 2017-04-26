@@ -1,10 +1,12 @@
 # -*- encoding: UTF-8 -*-
 # In this document a landname object is set up and names in china can be manipulated
-from xenSplittingService.service_configures import load_csv, save_csv_2d
+import os
+from xenSplittingService.service_configures import *
 
 
 class LandName(object):
     def __init__(self):
+        self.path_china_land_names_csv = os.path.join('..', 'data', 'XingZhenQu.csv')
         self.table = []
         self.province = []
         self.city = []
@@ -14,25 +16,9 @@ class LandName(object):
         self.flag = []
         self.island = []
         self.etcloc = []
-        self.table = load_csv('../data/XingZhenQu.csv')[1:]
+        self.table = load_csv(self.path_china_land_names_csv)[1:]
         self.__startup__()
 
-    # def update_landname(self, table):
-    #     """
-    #     write the updated landname table to the csv file
-    #     """
-    #     try:
-    #         csvfile = open('data/XingZhenQu.csv', 'w', newline='')
-    #         spamwriter = csv.writer(csvfile,
-    #                                 delimiter=',',
-    #                                 quotechar='|',
-    #                                 quoting=csv.QUOTE_MINIMAL
-    #                                 )
-    #         spamwriter.writerows(table)
-    #         csvfile.close()
-    #         return 1
-    #     except:
-    #         return 0
 
     def __startup__(self):
         for line in self.table:

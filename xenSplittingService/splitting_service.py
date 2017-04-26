@@ -3,8 +3,10 @@
 # --------------------------
 import jieba
 import re
+import os
+import csv
 from xenSplittingService.china_landname import LandName
-from xenSplittingService.service_configures import load_csv, save_csv_2d
+from xenSplittingService.service_configures import save_csv_2d, load_csv
 # --------------------------
 
 
@@ -14,32 +16,51 @@ from xenSplittingService.service_configures import load_csv, save_csv_2d
 # ------------------------------------
 class ContentSplit(object):
     def __init__(self):
+        self.path_pre_usr_identified_dict = os.path.join('..', 'data', 'pre_usr_identified_dict')
+        self.path_usr_defined_company_type_whitelist = os.path.join('..', 'data', 'User_defined_company_type_whitelist.csv')
+        self.path_usr_defined_company_service_type_whitelist = os.path.join('..', 'data',
+                                                                       'User_defined_company_service_type_whitelist.csv')
+        self.path_usr_defined_company_keyword_blacklist = os.path.join('..', 'data',
+                                                                  'User_defined_company_keyword_blacklist.csv')
+        self.path_company_service_type_whitelist = os.path.join('..', 'data', 'package_com_service_type_whitelist.csv')
+        self.path_company_type_whitelist = os.path.join('..', 'data', 'package_com_type_whitelist.csv')
+        self.path_company_keyword_blacklist = os.path.join('..', 'data', 'package_com_keyword_blacklist.csv')
+        self.path_company_partition_expressions_csv = os.path.join('..', 'data', 'package_com_partition_expression.csv')
+
         self.landname_zh = LandName()
         self.reload_config_settings()
 
     def reload_config_settings(self):
         self.checker = list()
+        self.__load_partition_expression__()
+        print(self.partition_expression_dict)
+        print(self.partition_expression_set)
         try:
-            jieba.load_userdict("../data/pre_usr_identified_dict")
+            jieba.load_userdict(self.path_pre_usr_identified_dict)
         except FileNotFoundError:
             self.checker.append('File data/pre_usr_identified_dict does not exit, but this error '
                                 'does not affect service function that much')
+        try:
+            self.company_partition_expression_dict = load_csv(self.path_company_partition_expressions_csv)
+            print(self.company_partition_expression_dict)
+        except:
+            print('warning')
         # initial company_service_type_whitelist
         self.company_service_type_whitelist = \
-            self.__load_config_list__('../data/package_com_service_type_whitelist.csv',
-                                      '../data/User_defined_company_service_type_whitelist.csv',
+            self.__load_config_list__(self.path_company_service_type_whitelist,
+                                      self.path_usr_defined_company_service_type_whitelist,
                                       warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
                                                         'can not be loaded correctly')
         # initial company type whitelist
         self.company_type_whitelist = \
-            self.__load_config_list__('../data/package_com_type_whitelist.csv',
-                                      '../data/User_defined_company_type_whitelist.csv',
+            self.__load_config_list__(self.path_company_type_whitelist,
+                                      self.path_usr_defined_company_type_whitelist,
                                       warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
                                                         'can not be loaded correctly')
         # initial company_keyword_blacklist
         self.company_keyword_blacklist = \
-            self.__load_config_list__('../data/package_com_keyword_blacklist.csv',
-                                      '../data/User_defined_company_keyword_blacklist.csv',
+            self.__load_config_list__(self.path_company_keyword_blacklist,
+                                      self.path_usr_defined_company_keyword_blacklist,
                                       warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
                                                         'can not be loaded correctly')
         # add name in company type white list to jieba dict so that they can be outputed.
@@ -100,10 +121,26 @@ class ContentSplit(object):
         new_list.update(target_set)
         return frozenset(new_list)
 
+    def __load_partition_expression__(self):
+        __csvfile__ = open(self.path_company_partition_expressions_csv, 'r', encoding='utf-8', newline='')
+        __spam_writer__ = csv.reader(__csvfile__,
+                                delimiter=',',
+                                quotechar='"'
+                                )
+        __list_in_list__ = [var for var in __spam_writer__]
+        __csvfile__.close()
+        self.partition_expression_dict = dict()
+        self.partition_expression_set = set()
+        for __item__ in __list_in_list__:
+            self.partition_expression_set.update(__item__)
+            if len(__item__) > 1:
+                for __word__ in range(1, len(__item__)):
+                    self.partition_expression_dict[__item__[__word__]] = __item__[0]
+
     def add_company_type(self, new_company_type, force_add=False):
         self.company_type_whitelist = \
             self.__specified_adding_type__(new_company_type, self.company_type_whitelist,
-                                           '../data/User_defined_company_type_whitelist.csv',
+                                           self.path_usr_defined_company_type_whitelist,
                                            typo_list=self.company_service_type_whitelist,
                                            force_add_config=force_add)
 
@@ -111,7 +148,7 @@ class ContentSplit(object):
         self.company_service_type_whitelist = \
             self.__specified_adding_type__(new_company_service_type,
                                            self.company_service_type_whitelist,
-                                           '../data/User_defined_company_service_type_whitelist.csv',
+                                           self.path_usr_defined_company_service_type_whitelist,
                                            typo_list=self.company_type_whitelist,
                                            force_add_config=force_add)
 
@@ -119,7 +156,7 @@ class ContentSplit(object):
         self.company_keyword_blacklist = \
             self.__specified_adding_type__(new_block_word,
                                            self.company_keyword_blacklist,
-                                           '../data/User_defined_company_keyword_blacklist.csv',
+                                           self.path_usr_defined_company_keyword_blacklist,
                                            force_add_config=force_add)
 
     def __show_checkers__(self):
