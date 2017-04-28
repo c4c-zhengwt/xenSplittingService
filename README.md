@@ -131,10 +131,11 @@ Terminal安装
 ```Python
 >>> import requests
 >>> s = requests.Session()
->>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '1', allow_english_output=True})
+>>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '1', 
+'allow_english_output': 'True'})
 >>> r.text
-'无锡市 有限公司 - 外服 人力资源'
-
+'{"content": ["\\u65e0\\u9521\\u5e02", "\\u6709\\u9650\\u516c\\u53f8", "-", "\\u5916\\u670d", "\\u4eba\\u529b\\u8d44\\u6e90"]}'
+# Json 格式返回
 ```
 
 其中method参数设置如下：

@@ -1,6 +1,7 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------
 import cherrypy
+import json
 from xenSplittingService.splitting_service import ContentSplit
 # --------------------------
 
@@ -16,11 +17,11 @@ class webSplitService(object):
 
     def GET(self, words, method, allow_english_output=True):
         if int(method) == 0:
-            cherrypy.session['my_string'] = self.splitter.split(words,
-                                                                enable_english_output=allow_english_output)
+            cherrypy.session['my_string'] = \
+                json.dumps({'content': self.splitter.split(words, enable_english_output=bool(allow_english_output))})
         elif int(method) == 1:
-            cherrypy.session['my_string'] = self.splitter.split_firmname(words,
-                                                                         enable_english_output=allow_english_output)
+            cherrypy.session['my_string'] = \
+                json.dumps({'content': self.splitter.split_firmname(words, enable_english_output=bool(allow_english_output))})
         elif int(method) == 9:
             self.splitter.add_blocked_company_keyword(words, force_add=False)
         elif int(method) == 8:

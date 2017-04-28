@@ -206,11 +206,11 @@ class ContentSplit(object):
 
     def split_firmname(self, name, enable_english_output=False, enable_digit=False):
         if self.is_chi_name(name, possi=0.6):
-            return ' '.join(self.split_firmname_zh(name, enable_english_output))
+            return self.split_firmname_zh(name, enable_english_output)
         elif self.is_eng_name(name, possi=0.6):
-            return ' '.join(self.split_firmname_en(name, enable_digit))
+            return self.split_firmname_en(name, enable_digit)
         else:
-            return ' '
+            return list()
 
     def split_firmname_zh(self, name, enable_english=False):
         item_text = jieba.cut(str(name))
@@ -372,7 +372,7 @@ class ContentSplit(object):
         for index in range(len(item_text)):
             if item_text[index] not in self.company_keyword_blacklist:
                 new_list.append(item_text[index])
-        return ' '.join(new_list)
+        return new_list
 
     def split(self, content, enable_english_output=True):
         item_text = jieba.cut(str(content))
@@ -387,7 +387,7 @@ class ContentSplit(object):
         for index in range(len(item_text)):
             if item_text[index] not in self.company_keyword_blacklist:
                 new_list.append(item_text[index])
-        return ' '.join(new_list)
+        return new_list
 
 
 if __name__ == '__main__':
