@@ -36,7 +36,9 @@ Terminal安装
 
 #### 对公司名称进行更准确的切词：
 
-    splitter.split_firmname('无锡市外服人力资源有限公司', enable_english_output=True)
+    splitter.split_firmname('无锡市外服人力资源有限公司', 
+                            enable_english_output=True,
+                            enable_digit=False)
     >>> 无锡市 有限公司 外服 人力资源
 
 返回以空格分割的单词串，单词按位置具有意义如下
@@ -45,7 +47,8 @@ Terminal安装
 - 第二位置：公司类型，如有限公司，若为空则为 "-" （配置文件待补充）
 - 第三位置：公司经营类型，如超市，若为空则为 "-" （配置文件待补充）
 
-参数中 `enable_english_output=True` 为是否允许英文字母在中文名字的结果中输出，默认为False
+参数中 `enable_english_output=True` 为是否允许英文字母在中文名字的结果中输出，默认为False。
+参数中 `enable_digit=False` 为是否允许数字在英文字母的结果中输出，默认为False。
 
 > 注：公司类型由 `data/package_com_type_whitelist.csv`定义
 > 用户自定义公司类型配置文件为 `data/User_defined_company_type_whitelist.csv`，用户可以使用类方法添加，添加方法见`修改配置文件`

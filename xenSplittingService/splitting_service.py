@@ -65,6 +65,10 @@ class ContentSplit(object):
         # add name in company type white list to jieba dict so that they can be outputed.
         for __item__ in self.company_type_whitelist:
             jieba.add_word(__item__, freq=100, tag='n')
+        for __item__ in self.company_service_type_whitelist:
+            jieba.add_word(__item__, freq=100, tag='n')
+        for __item__ in self.partition_expression_set:
+            jieba.add_word(__item__, freq=100, tag='n')
         self.__show_checkers__()
 
     def __load_config_list__(self, package_defined_csv, usr_defined_csv, warning_pack_info=''):
@@ -200,11 +204,13 @@ class ContentSplit(object):
         else:
             return False
 
-    def split_firmname(self, name, enable_english_output=False):
+    def split_firmname(self, name, enable_english_output=False, enable_digit=False):
         if self.is_chi_name(name, possi=0.6):
             return ' '.join(self.split_firmname_zh(name, enable_english_output))
+        elif self.is_eng_name(name, possi=0.6):
+            return ' '.join(self.split_firmname_en(name, enable_digit))
         else:
-            return ''
+            return ' '
 
     def split_firmname_zh(self, name, enable_english=False):
         item_text = jieba.cut(str(name))
@@ -215,11 +221,12 @@ class ContentSplit(object):
         while '\u3000' in namelist:
             namelist.remove('\u3000')
         locationchecker = self.landname_zh
-        nameline = []
+        nameline = list()
         # ---------------------------------------------------------- derive locationchecker
-        if '分公司' not in namelist:
-            if locationchecker.check_landname(namelist[0]) != None:
-                nameline.append(locationchecker.check_landname(namelist[0]))
+        nameline.append('-')
+        if not self.__any_partition_in__(namelist):
+            if locationchecker.check_landname(namelist[0]) is not None:
+                nameline[0] = locationchecker.check_landname(namelist[0])
                 del namelist[0]
             else:
                 if '中国' not in namelist:
@@ -228,40 +235,33 @@ class ContentSplit(object):
                         bindex = namelist.index(')')
                         if bindex - aindex > 1:
                             for index in range(aindex+1, bindex, 1):
-                                if len(nameline) == 0:
-                                    if locationchecker.check_landname(namelist[index]) != None:
-                                        nameline.append(locationchecker.check_landname(namelist[index]))
-                                        del namelist[index]
+                                if locationchecker.check_landname(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                    del namelist[index]
+                                    break
                     else:
                         if '(' in namelist:
                             aindex = namelist.index('(')
                             for index in range(aindex + 1, len(namelist), 1):
-                                if len(nameline) == 0:
-                                    if locationchecker.check_landname(namelist[index]) != None:
-                                        nameline.append(locationchecker.check_landname(namelist[index]))
-                                        del namelist[index]
+                                if locationchecker.check_landname(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                    del namelist[index]
+                                    break
                         else:
                             for index in range(1, len(namelist), 1):
-                                if len(nameline) == 0:
-                                    if locationchecker.check_landname(namelist[index]) != None:
-                                        nameline.append(locationchecker.check_landname(namelist[index]))
-                                        del namelist[index]
-                            if len(nameline) == 0:
-                                nameline.append('-')
-                            pass    # no locationchecker
-                    if len(nameline) == 0:
-                        nameline.append('-')
+                                if locationchecker.check_landname(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                    del namelist[index]
+                                    break
                 else:
                     namelist.remove('中国')
-                    for index in range(len(namelist)):
-                        if len(nameline) == 0:
-                            if locationchecker.check_landname(namelist[index]) != None:
-                                nameline.append(locationchecker.check_landname(namelist[index]))
-                                del namelist[index]
-                    if len(nameline) == 0:
-                        nameline.append('-')
+                    for index in range(1, len(namelist)):
+                        if locationchecker.check_landname(namelist[index]) is not None:
+                            nameline[0] = locationchecker.check_landname(namelist[index])
+                            del namelist[index]
+                            break
         else:
-            tailindex = namelist.index('分公司')
+            tailindex = self.__index_partition_in__(namelist)
             if tailindex >= 1:
                 formerindex = 0
                 for i in range(tailindex-1, -1, -1):
@@ -269,27 +269,23 @@ class ContentSplit(object):
                         formerindex = i
                 for j in range(formerindex+1, tailindex, 1):
                     if locationchecker.check_landname(namelist[j]) is not None:
-                        nameline.append(locationchecker.check_landname(namelist[j]))
+                        nameline[0] = locationchecker.check_landname(namelist[j])
                         del namelist[j]
-                if len(nameline) == 0:
+                        break
+                if nameline[0] == '-':
                     if locationchecker.check_landname(namelist[0]) is not None:
-                        nameline.append(locationchecker.check_landname(namelist[0]))
+                        nameline[0] = locationchecker.check_landname(namelist[0])
                         del namelist[0]
                     else:
                         for index in range(1, formerindex, 1):
-                            if len(nameline) == 0:
-                                if locationchecker.check_landname(namelist[index]) is not None:
-                                    nameline.append(locationchecker.check_landname(namelist[index]))
-                                    del namelist[index]
-                if len(nameline) == 0:
-                    nameline.append('-')
+                            if locationchecker.check_landname(namelist[index]) is not None:
+                                nameline[0] = locationchecker.check_landname(namelist[index])
+                                del namelist[index]
+                                break
             else:
-                if len(nameline) == 0:
-                    if locationchecker.check_landname(namelist[0]) is not None:
-                        nameline.append(locationchecker.check_landname(namelist[0]))
-                        del namelist[0]
-                if len(nameline) == 0:
-                    nameline.append('-')
+                if locationchecker.check_landname(namelist[0]) is not None:
+                    nameline[0] = locationchecker.check_landname(namelist[0])
+                    del namelist[0]
         # ---------------------------------------------------------- cleanning
         for i in range(len(namelist)):
             namelist[i] = re.sub(r'\W', "", namelist[i])
@@ -329,6 +325,39 @@ class ContentSplit(object):
             if item not in self.company_keyword_blacklist:
                 nameline.append(item)
         return nameline
+
+    def __any_partition_in__(self, list_obj):
+        for __partition__ in self.partition_expression_set:
+            if __partition__ in list_obj:
+                return True
+        return False
+
+    def __index_partition_in__(self, list_obj):
+        for __partition__ in self.partition_expression_set:
+            if __partition__ in list_obj:
+                return list_obj.index(__partition__)
+        return 0
+
+    def split_firmname_en(self, name, allow_digit=False):
+        item_text = list(jieba.cut(str(name)))
+        for __index__ in range(len(item_text)):
+            item_text[__index__] = re.sub(r'\W', '', item_text[__index__])
+        if allow_digit:
+            for __index__ in range(len(item_text)):
+                item_text[__index__] = re.sub(r'\d', '', item_text[__index__])
+        while '' in item_text:
+            item_text.remove('')
+        name_line = list()
+        # ---------------------------------------- derive location
+        name_line.append('-')
+        # ---------------------------------------- derive company type
+        name_line.append('-')
+        # ---------------------------------------- derive company service type
+        name_line.append('-')
+        for __item__ in item_text:
+            name_line.append(__item__)
+        return name_line
+
 
     def split_msg(self, content, enable_english_output=True):
         item_text = jieba.cut(str(content))
