@@ -201,7 +201,7 @@ class ContentSplit(object):
             return False
 
     def split_firmname(self, name, enable_english_output=False):
-        if self.is_chi_name(name, possi=0.7):
+        if self.is_chi_name(name, possi=0.6):
             return ' '.join(self.split_firmname_zh(name, enable_english_output))
         else:
             return ''
@@ -330,11 +330,13 @@ class ContentSplit(object):
                 nameline.append(item)
         return nameline
 
-    def split_msg(self, content):
+    def split_msg(self, content, enable_english_output=True):
         item_text = jieba.cut(str(content))
         item_text = list(item_text)
         for i in range(len(item_text)):
             item_text[i] = re.sub(r'\W', "", item_text[i])
+            if enable_english_output is False:
+                item_text[i] = re.sub(r'[a-zA-Z]', '', item_text[i])
         while '' in item_text:
             item_text.remove('')
         new_list = list()
@@ -343,11 +345,13 @@ class ContentSplit(object):
                 new_list.append(item_text[index])
         return ' '.join(new_list)
 
-    def split(self, content):
+    def split(self, content, enable_english_output=True):
         item_text = jieba.cut(str(content))
         item_text = list(item_text)
         for i in range(len(item_text)):
             item_text[i] = re.sub(r'\W', "", item_text[i])
+            if enable_english_output is False:
+                item_text[i] = re.sub(r'[a-zA-Z]', '', item_text[i])
         while '' in item_text:
             item_text.remove('')
         new_list = list()

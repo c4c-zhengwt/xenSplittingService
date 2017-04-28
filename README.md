@@ -19,7 +19,10 @@ Terminal安装
 
 ## 调用方式
 
-创建服务对象以初始化自定义字典信息、名称白名单、名称黑名单和服务类型白名单
+创建服务对象以初始化自定义字典信息、名称白名单、名称黑名单和服务类型白名单。
+
+> 注：由于配置文件使用相对路径，需要手动把本包内的data文件夹复制到您调用本包的代码所在的文件夹下面，即让data文件夹与调用本包
+的py文件处在同一个工作目录下面。
 
     import xenSplittingService as xSS
     splitter = xSS.ContentSplit()
@@ -51,11 +54,13 @@ Terminal安装
 ## 修改配置文件
 
 
-本切词服务共包含以下配置文件：
+本切词服务共包含以下配置文件（现阶段因为需要手动复制data文件夹似乎内置配置文件和用户配置文件是同样的结果）：
+
+> 注：使用windows系统的用户请避免直接修改配置文件，除非能够确保你的编辑器可以按照`utf-8`格式写入磁盘！
 
 ---
 
-- 包内置配置文件：（该类配置文件在安装时会覆盖前一个版本的配置文件）
+- 包内置配置文件：
     - data/package_com_keyword_blacklist.csv 分词输出的黑名单，黑名单当中的内容将不会被输出
     - data/package_com_service_type_whitelist.csv 公司经营服务类型的白名单
     - data/package_com_type_whitelist.csv  公司类型的白名单
@@ -99,6 +104,42 @@ Terminal安装
 
 > 类似配置文件指的是 company type 和 company service type 这两个文件相类似。
 
+
+
+## API demo功能：
+
+本包可以直接运行包内的 `web_cache.py` 进行API功能展示
+
+请确保已安装以下扩展包：
+
+- cherrypy
+- requests
+- jieba
+
+### demo 例子
+
+先在命令行中运行
+
+    python3 web_cache.py
+
+
+获得本机服务口例如`'http://127.0.0.1:8080/'`，可以使用以下方式进行demo：
+
+```Python
+>>> import requests
+>>> s = requests.Session()
+>>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '1', allow_english_output=True})
+>>> r.text
+'无锡市 有限公司 - 外服 人力资源'
+
+```
+
+其中method参数设置如下：
+- '0'：一般分词，见上文中 `splitter.split()`
+- '1'：公司名分词，见上文中 `splitter.split_firmname()`
+- '7'：把参数`words`对应内容添加至公司类型白名单
+- '8'：把参数`words`对应内容添加至公司服务类型白名单
+- '9'：把参数`words`对应内容添加至公司分词后禁止输出名单
 
 
 ## 待实现功能：
