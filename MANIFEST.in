@@ -2,11 +2,11 @@
 include LICENSE.txt
 
 # Include the data files
-include data XingZhenQu.csv
-include data pre_usr_identified_dict
-include data package_com_keyword_blacklist.csv
-include data package_com_service_type_whitelist.csv
-include data package_com_type_whitelist.csv
-include data package_com_partition_expression.csv
+# include data XingZhenQu.csv
+# include data pre_usr_identified_dict
+# include data package_com_keyword_blacklist.csv
+# include data package_com_service_type_whitelist.csv
+# include data package_com_type_whitelist.csv
+# include data package_com_partition_expression.csv
 
 # recursive-include data *

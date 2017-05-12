@@ -1,16 +1,13 @@
 # -*- encoding: UTF-8 -*-
 # In this document firm name and remarks are segmented
 # --------------------------
-import jieba
-import re
-import os
 import csv
-from xSS.china_landname import LandName
-from xSS.service_configures import save_csv_2d, load_csv
+import os
+import re
+import jieba
+from xenSplittingService.china_landname import LandName
+from xenSplittingService.service_configures import save_csv_2d, load_csv
 # --------------------------
-
-
-# ------------------------------------
 
 
 # ------------------------------------
@@ -18,14 +15,11 @@ class ContentSplit(object):
     def __init__(self):
         source_path = os.path.abspath(__file__)
         source_path = source_path.split(os.path.sep)
-        path_index = source_path.index('xenSplittingService')
         while source_path[-1] != 'xenSplittingService':
             source_path.pop()
+        while 'xenSplittingService' in source_path:
+            source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
-        print('0', __file__)
-        print('1', __name__)
-        print('2', self.__module__)
-        print('3', self.source_path)
         self.running_path = os.getcwd()
         self.path_pre_usr_identified_dict = \
             os.path.join(self.source_path, 'data',
@@ -419,21 +413,6 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
-    splitter = ContentSplit()
-    print(os.getcwd())
-    print(splitter.partition_expression_set)
-    print(splitter.partition_expression_dict)
-    print(splitter.company_type_whitelist, type(splitter.company_type_whitelist))
-    print(splitter.company_service_type_whitelist, type(splitter.company_service_type_whitelist))
-    print(splitter.company_keyword_blacklist, type(splitter.company_keyword_blacklist))
-    splitter.add_company_type('test01', force_add=True)
-    # splitter.add_company_type(['test02', 'test03'])
-    splitter.add_company_service_type(['test02'])
-    splitter.add_blocked_company_keyword('test01')
-    print(splitter.split('无锡市外服人力资源有限公司'))
-    print(splitter.split_firmname("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
-    print(splitter.split_msg("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
-    print(splitter.split_firmname('无锡市外服人力资源有限分公司', enable_english_output=True))
     # -----------------------------------
     # -----------------------------------
     end_time = time.time()

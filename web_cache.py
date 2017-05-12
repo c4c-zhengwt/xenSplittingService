@@ -1,8 +1,12 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------
-import cherrypy
 import json
-from xSS.splitting_service import ContentSplit
+
+import cherrypy
+
+from xenSplittingService.splitting_service import ContentSplit
+
+
 # --------------------------
 
 

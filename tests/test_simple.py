@@ -3,11 +3,10 @@
 # setup.py that excludes installing the "tests" package
 
 import os
-import xSS as xSS
-
+from xenSplittingService.splitting_service import ContentSplit
 
 def test():
-    splitter = xSS.ContentSplit()
+    splitter = ContentSplit()
     print(os.getcwd())
     print(splitter.partition_expression_set)
     print(splitter.partition_expression_dict)
