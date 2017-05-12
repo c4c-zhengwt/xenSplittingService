@@ -107,11 +107,13 @@ splitter.split_firmname('无锡市外服人力资源有限公司',
 
 类方法修改：
 
-    import xenSplittingService as xSS
-    splitter = xSS.ContentSplit()
-    splitter.add_company_type(param)
-    splitter.add_company_service_type(param)
-    splitter.add_blocked_company_keyword(param, force_add=True)
+```Python
+import xenSplittingService as xSS
+splitter = xSS.ContentSplit()
+splitter.add_company_type(*param)
+splitter.add_company_service_type(*param)
+splitter.add_blocked_company_keyword(*param, force_add=True)
+```
 
 其中param可以是单个字符串如：`'人力资源'` ，也可以是字符串组成的列表如：`['人力资源', '外服']`。如果配置文件当中已经存在相关字段或者类似文件当中存在相关字段则不会加入用户自定义配置文件，若要强行加入请使用可选参数 `force_add=True`
 
