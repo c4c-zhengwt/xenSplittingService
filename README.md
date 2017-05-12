@@ -24,21 +24,31 @@ Terminal安装
 > 注：由于配置文件使用相对路径，需要手动把本包内的data文件夹复制到您调用本包的代码所在的文件夹下面，即让data文件夹与调用本包
 的py文件处在同一个工作目录下面。
 
-    import xenSplittingService as xSS
-    splitter = xSS.ContentSplit()
+```python
+import xenSplittingService as xSS
+splitter = xSS.ContentSplit()
+
+```
+
 
 #### 单纯切词：
 
 返回以空格分割的单词串
+```Python
+splitter.split('无锡市外服人力资源有限公司', enable_english_output=True, enable_digit_output=True)
+```
 
-    splitter.split('无锡市外服人力资源有限公司')
     >>> 无锡市 外服 人力资源 有限公司
 
 #### 对公司名称进行更准确的切词：
+```Python
+splitter.split_firmname('无锡市外服人力资源有限公司', 
+                        enable_english_output=True,
+                        enable_digit=False)
+```
 
-    splitter.split_firmname('无锡市外服人力资源有限公司', 
-                            enable_english_output=True,
-                            enable_digit=False)
+
+
     >>> 无锡市 有限公司 外服 人力资源
 
 返回以空格分割的单词串，单词按位置具有意义如下
@@ -86,10 +96,10 @@ Terminal安装
 
 ---
 
-- 用户自定义配置文件：
-    - data/User_defined_company_keyword_blacklist.csv 分词输出的黑名单，黑名单当中的内容将不会被输出
-    - data/User_defined_company_service_type_whitelist.csv 公司经营服务类型的白名单
-    - data/User_defined_company_type_whitelist.csv 公司类型的白名单
+- 用户自定义配置文件（自定义配置文件处于调用xenSplittingService的同一工作目录下面）：
+    - User_defined_company_keyword_blacklist.csv 分词输出的黑名单，黑名单当中的内容将不会被输出
+    - User_defined_company_service_type_whitelist.csv 公司经营服务类型的白名单
+    - User_defined_company_type_whitelist.csv 公司类型的白名单
 
 ### 用户自定义配置文件修改方式：
 

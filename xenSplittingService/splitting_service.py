@@ -17,12 +17,12 @@ class ContentSplit(object):
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
             source_path.pop()
-        while 'xenSplittingService' in source_path:
+        while source_path.count('xenSplittingService') >= 2:
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
         self.running_path = os.getcwd()
         self.path_pre_usr_identified_dict = \
-            os.path.join(self.source_path, 'data',
+            os.path.join(self.source_path, '..', 'data',
                          'pre_usr_identified_dict')
         self.path_usr_defined_company_type_whitelist = \
             os.path.join(self.running_path,
@@ -34,16 +34,16 @@ class ContentSplit(object):
             os.path.join(self.running_path,
                          'User_defined_company_keyword_blacklist.csv')
         self.path_company_service_type_whitelist = \
-            os.path.join(self.source_path, 'data',
+            os.path.join(self.source_path, '..', 'data',
                          'package_com_service_type_whitelist.csv')
         self.path_company_type_whitelist = \
-            os.path.join(self.source_path, 'data',
+            os.path.join(self.source_path, '..', 'data',
                          'package_com_type_whitelist.csv')
         self.path_company_keyword_blacklist = \
-            os.path.join(self.source_path, 'data',
+            os.path.join(self.source_path, '..', 'data',
                          'package_com_keyword_blacklist.csv')
         self.path_company_partition_expressions_csv = \
-            os.path.join(self.source_path, 'data',
+            os.path.join(self.source_path, '..', 'data',
                          'package_com_partition_expression.csv')
         self.landname_zh = LandName()
         self.reload_config_settings()

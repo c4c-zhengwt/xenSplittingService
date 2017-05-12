@@ -10,10 +10,10 @@ class LandName(object):
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
             source_path.pop()
-        while 'xenSplittingService' in source_path:
+        while source_path.count('xenSplittingService') >= 2:
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
-        self.path_china_land_names_csv = os.path.join(self.source_path, 'data',
+        self.path_china_land_names_csv = os.path.join(self.source_path, '..', 'data',
                                                       'XingZhenQu.csv')
         self.table = list()
         self.province = list()
