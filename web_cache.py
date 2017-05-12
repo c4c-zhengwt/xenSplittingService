@@ -2,7 +2,7 @@
 # --------------------------
 import cherrypy
 import json
-from xenSplittingService.splitting_service import ContentSplit
+from xSS.splitting_service import ContentSplit
 # --------------------------
 
 
@@ -15,13 +15,18 @@ class webSplitService(object):
     # def GET(self):
     #     return 'Please use method POST'
 
-    def GET(self, words, method, allow_english_output=True):
+    def GET(self, words, method, allow_english_output=True, allow_digit_output=True):
         if int(method) == 0:
             cherrypy.session['my_string'] = \
-                json.dumps({'content': self.splitter.split(words, enable_english_output=bool(allow_english_output))})
+                json.dumps({'content': self.splitter.split(words,
+                                                           enable_english_output=bool(allow_english_output),
+                                                           enable_digit_output=bool(allow_digit_output)
+                                                           )})
         elif int(method) == 1:
             cherrypy.session['my_string'] = \
-                json.dumps({'content': self.splitter.split_firmname(words, enable_english_output=bool(allow_english_output))})
+                json.dumps({'content': self.splitter.split_firmname(words,
+                                                                    enable_english_output=bool(allow_english_output),
+                                                                    enable_digit=bool(allow_digit_output))})
         elif int(method) == 9:
             self.splitter.add_blocked_company_keyword(words, force_add=False)
         elif int(method) == 8:

@@ -129,10 +129,12 @@ Terminal安装
 获得本机服务口例如`'http://127.0.0.1:8080/'`，可以使用以下方式进行demo：
 
 ```Python
->>> import requests
+import requests
 >>> s = requests.Session()
+>>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '0', 
+'allow_english_output': 'True', 'allow_digit_output': 'True'})
 >>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '1', 
-'allow_english_output': 'True'})
+'allow_english_output': 'True', 'allow_digit_output': 'True'})
 >>> r.text
 '{"content": ["\\u65e0\\u9521\\u5e02", "\\u6709\\u9650\\u516c\\u53f8", "-", "\\u5916\\u670d", "\\u4eba\\u529b\\u8d44\\u6e90"]}'
 # Json 格式返回

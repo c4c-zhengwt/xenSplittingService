@@ -10,7 +10,6 @@
 import re
 import os
 import codecs
-
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -40,13 +39,13 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=find_version('xenSplittingService', '__init__.py'),
+    version=find_version('xSS', '__init__.py'),
 
     description='',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/mingotang/xenSplittingService',
+    url='https://github.com/mingotang/xSS',
 
     # Author details
     author='Mingo Tang',
@@ -89,7 +88,7 @@ setup(
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    #   py_modules=["my_module"],
+    py_modules=["my_module"],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's

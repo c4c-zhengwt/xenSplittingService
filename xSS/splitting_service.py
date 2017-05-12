@@ -5,8 +5,8 @@ import jieba
 import re
 import os
 import csv
-from xenSplittingService.china_landname import LandName
-from xenSplittingService.service_configures import save_csv_2d, load_csv
+from xSS.china_landname import LandName
+from xSS.service_configures import save_csv_2d, load_csv
 # --------------------------
 
 
@@ -16,23 +16,41 @@ from xenSplittingService.service_configures import save_csv_2d, load_csv
 # ------------------------------------
 class ContentSplit(object):
     def __init__(self):
-        self.path_pre_usr_identified_dict = os.path.join('data',
-                                                         'pre_usr_identified_dict')
+        source_path = os.path.abspath(__file__)
+        source_path = source_path.split(os.path.sep)
+        path_index = source_path.index('xenSplittingService')
+        while source_path[-1] != 'xenSplittingService':
+            source_path.pop()
+        self.source_path = os.path.sep.join(source_path)
+        print('0', __file__)
+        print('1', __name__)
+        print('2', self.__module__)
+        print('3', self.source_path)
+        self.running_path = os.getcwd()
+        self.path_pre_usr_identified_dict = \
+            os.path.join(self.source_path, 'data',
+                         'pre_usr_identified_dict')
         self.path_usr_defined_company_type_whitelist = \
-            os.path.join('data', 'User_defined_company_type_whitelist.csv')
+            os.path.join(self.running_path,
+                         'User_defined_company_type_whitelist.csv')
         self.path_usr_defined_company_service_type_whitelist = \
-            os.path.join('data', 'User_defined_company_service_type_whitelist.csv')
+            os.path.join(self.running_path,
+                         'User_defined_company_service_type_whitelist.csv')
         self.path_usr_defined_company_keyword_blacklist = \
-            os.path.join('data',
+            os.path.join(self.running_path,
                          'User_defined_company_keyword_blacklist.csv')
         self.path_company_service_type_whitelist = \
-            os.path.join('data', 'package_com_service_type_whitelist.csv')
+            os.path.join(self.source_path, 'data',
+                         'package_com_service_type_whitelist.csv')
         self.path_company_type_whitelist = \
-            os.path.join('data', 'package_com_type_whitelist.csv')
+            os.path.join(self.source_path, 'data',
+                         'package_com_type_whitelist.csv')
         self.path_company_keyword_blacklist = \
-            os.path.join('data', 'package_com_keyword_blacklist.csv')
+            os.path.join(self.source_path, 'data',
+                         'package_com_keyword_blacklist.csv')
         self.path_company_partition_expressions_csv = \
-            os.path.join('data', 'package_com_partition_expression.csv')
+            os.path.join(self.source_path, 'data',
+                         'package_com_partition_expression.csv')
         self.landname_zh = LandName()
         self.reload_config_settings()
 
@@ -212,14 +230,17 @@ class ContentSplit(object):
         else:
             return list()
 
-    def split_firmname_zh(self, name, enable_english=False):
+    def split_firmname_zh(self, name, enable_english=False, enable_digit_output=True):
         item_text = jieba.cut(str(name))
         namelist = list(item_text)
-        if not enable_english:
+        if enable_english is False:
             for index in range(len(namelist)):
                 namelist[index] = re.sub(r'[a-zA-Z]', '', namelist[index])
-        while '\u3000' in namelist:
-            namelist.remove('\u3000')
+        if enable_digit_output is False:
+            for index in range(len(namelist)):
+                namelist[index] = re.sub(r'[0123456789]', '', namelist[index])
+        while '' in namelist:
+            namelist.remove('')
         locationchecker = self.landname_zh
         nameline = list()
         # ---------------------------------------------------------- derive locationchecker
@@ -359,13 +380,15 @@ class ContentSplit(object):
         return name_line
 
 
-    def split_msg(self, content, enable_english_output=True):
+    def split_msg(self, content, enable_english_output=True, enable_digit_output=True):
         item_text = jieba.cut(str(content))
         item_text = list(item_text)
         for i in range(len(item_text)):
             item_text[i] = re.sub(r'\W', "", item_text[i])
             if enable_english_output is False:
                 item_text[i] = re.sub(r'[a-zA-Z]', '', item_text[i])
+            if enable_digit_output is False:
+                item_text[i] = re.sub(r'[0123456789]', '', item_text[i])
         while '' in item_text:
             item_text.remove('')
         new_list = list()
@@ -374,13 +397,15 @@ class ContentSplit(object):
                 new_list.append(item_text[index])
         return new_list
 
-    def split(self, content, enable_english_output=True):
+    def split(self, content, enable_english_output=True, enable_digit_output=True):
         item_text = jieba.cut(str(content))
         item_text = list(item_text)
         for i in range(len(item_text)):
             item_text[i] = re.sub(r'\W', "", item_text[i])
             if enable_english_output is False:
                 item_text[i] = re.sub(r'[a-zA-Z]', '', item_text[i])
+            if enable_digit_output is False:
+                item_text[i] = re.sub(r'[0123456789]', '', item_text[i])
         while '' in item_text:
             item_text.remove('')
         new_list = list()
@@ -394,6 +419,21 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
+    splitter = ContentSplit()
+    print(os.getcwd())
+    print(splitter.partition_expression_set)
+    print(splitter.partition_expression_dict)
+    print(splitter.company_type_whitelist, type(splitter.company_type_whitelist))
+    print(splitter.company_service_type_whitelist, type(splitter.company_service_type_whitelist))
+    print(splitter.company_keyword_blacklist, type(splitter.company_keyword_blacklist))
+    splitter.add_company_type('test01', force_add=True)
+    # splitter.add_company_type(['test02', 'test03'])
+    splitter.add_company_service_type(['test02'])
+    splitter.add_blocked_company_keyword('test01')
+    print(splitter.split('无锡市外服人力资源有限公司'))
+    print(splitter.split_firmname("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
+    print(splitter.split_msg("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
+    print(splitter.split_firmname('无锡市外服人力资源有限分公司', enable_english_output=True))
     # -----------------------------------
     # -----------------------------------
     end_time = time.time()

@@ -1,21 +1,28 @@
 # -*- encoding: UTF-8 -*-
 # In this document a landname object is set up and names in china can be manipulated
 import os
-from xenSplittingService.service_configures import *
+from xSS.service_configures import *
 
 
 class LandName(object):
     def __init__(self):
-        self.path_china_land_names_csv = os.path.join('data', 'XingZhenQu.csv')
-        self.table = []
-        self.province = []
-        self.city = []
-        self.district = []
-        self.town = []
-        self.selfgov = []
-        self.flag = []
-        self.island = []
-        self.etcloc = []
+        source_path = os.path.abspath(__file__)
+        source_path = source_path.split(os.path.sep)
+        path_index = source_path.index('xenSplittingService')
+        while source_path[-1] != 'xenSplittingService':
+            source_path.pop()
+        self.source_path = os.path.sep.join(source_path)
+        self.path_china_land_names_csv = os.path.join(self.source_path, 'data',
+                                                      'XingZhenQu.csv')
+        self.table = list()
+        self.province = list()
+        self.city = list()
+        self.district = list()
+        self.town = list()
+        self.selfgov = list()
+        self.flag = list()
+        self.island = list()
+        self.etcloc = list()
         self.table = load_csv(self.path_china_land_names_csv)[1:]
         self.__startup__()
 

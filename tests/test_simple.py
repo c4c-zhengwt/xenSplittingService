@@ -3,7 +3,7 @@
 # setup.py that excludes installing the "tests" package
 
 import os
-import xenSplittingService as xSS
+import xSS as xSS
 
 
 def test():
@@ -20,5 +20,6 @@ def test():
     splitter.add_blocked_company_keyword('test01')
     print(splitter.split('无锡市外服人力资源有限公司'))
     print(splitter.split_firmname("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
+    print(splitter.split_msg("CNY 4,900-MERES MEDICAL CONSULTING CO.,LTD"))
     print(splitter.split_firmname('无锡市外服人力资源有限分公司', enable_english_output=True))
     return 0
