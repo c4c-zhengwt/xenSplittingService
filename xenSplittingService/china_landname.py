@@ -17,6 +17,14 @@ class LandName(object):
         self.source_path = os.path.sep.join(source_path)
         self.path_china_land_names_csv = os.path.join(self.source_path, 'data',
                                                       'XingZhenQu.csv')
+        try:
+            self.table = load_csv(self.path_china_land_names_csv)[1:]
+        except FileNotFoundError:
+            self.path_china_land_names_csv = os.path.join(self.source_path,
+                                                          'xenSplittingService',
+                                                          'data',
+                                                          'XingZhenQu.csv')
+            self.table = load_csv(self.path_china_land_names_csv)[1:]
         self.table = list()
         self.province = list()
         self.city = list()
@@ -26,7 +34,6 @@ class LandName(object):
         self.flag = list()
         self.island = list()
         self.etcloc = list()
-        self.table = load_csv(self.path_china_land_names_csv)[1:]
         self.__startup__()
 
     def __startup__(self):

@@ -1,12 +1,9 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------
 import json
-
+import os
 import cherrypy
-
 from xenSplittingService.splitting_service import ContentSplit
-
-
 # --------------------------
 
 
@@ -14,12 +11,15 @@ from xenSplittingService.splitting_service import ContentSplit
 class webSplitService(object):
     def __init__(self):
         self.splitter = ContentSplit()
+        running_path = self.splitter.source_path.split(os.path.sep)
+        running_path.append('samples')
+        running_path = os.path.sep.join(running_path)
+        self.splitter.running_path = running_path
 
     @cherrypy.tools.accept(media='text/plain')
     # def GET(self):
     #     return 'Please use method POST'
-
-    def GET(self, words, method, enable_english_output=True, enable_digit_output=True):
+    def GET(self, words, method, enable_english_output, enable_digit_output):
         if int(method) == 0:
             cherrypy.session['my_string'] = \
                 json.dumps({'content': self.splitter.split(words,
