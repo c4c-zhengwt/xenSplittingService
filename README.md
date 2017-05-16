@@ -21,8 +21,6 @@ Terminal安装
 
 创建服务对象以初始化自定义字典信息、名称白名单、名称黑名单和服务类型白名单。
 
-> 注：由于配置文件使用相对路径，需要手动把本包内的data文件夹复制到您调用本包的代码所在的文件夹下面，即让data文件夹与调用本包
-的py文件处在同一个工作目录下面。
 
 ```python
 import xenSplittingService as xSS
@@ -57,11 +55,14 @@ splitter.split_firmname('无锡市外服人力资源有限公司',
 - 第二位置：公司类型，如有限公司，若为空则为 "-" （配置文件待补充）
 - 第三位置：公司经营类型，如超市，若为空则为 "-" （配置文件待补充）
 
-参数中 `enable_english_output=True` 为是否允许英文字母在中文名字的结果中输出，默认为False。
-参数中 `enable_digit=False` 为是否允许数字在英文字母的结果中输出，默认为False。
+> 第二位置固定规则：
+配置文件默认: “有限公司” “ 股份有限公司” “有限责任公司” “集团” “分公司” 。 
+过滤优先级是 “分公司” >"集团">“股份有限公司”、“有限责任公司”>“有限公司” 
 
-> 注：公司类型由 `data/package_com_type_whitelist.csv`定义
-> 用户自定义公司类型配置文件为 `data/User_defined_company_type_whitelist.csv`，用户可以使用类方法添加，添加方法见`修改配置文件`
+参数中 `enable_english_output=True` 为是否允许英文字母在中文名字的结果中输出，默认为False。
+参数中 `enable_digit_output=False` 为是否允许数字在英文字母的结果中输出，默认为False。
+
+> 用户自定义公司类型配置文件为 `User_defined_company_type_whitelist.csv`，用户可以使用类方法添加，添加方法见`修改配置文件`
 
 
 ## 修改配置文件
@@ -144,9 +145,9 @@ splitter.add_blocked_company_keyword(*param, force_add=True)
 import requests
 >>> s = requests.Session()
 >>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '0', 
-'allow_english_output': 'True', 'allow_digit_output': 'True'})
+'enable_english_output': 'True', 'enable_digit_output': 'True'})
 >>> r = s.get('http://127.0.0.1:8080/', params={'words': '无锡市外服人力资源有限公司', 'method': '1', 
-'allow_english_output': 'True', 'allow_digit_output': 'True'})
+'enable_english_output': 'True', 'enable_digit_output': 'True'})
 >>> r.text
 '{"content": ["\\u65e0\\u9521\\u5e02", "\\u6709\\u9650\\u516c\\u53f8", "-", "\\u5916\\u670d", "\\u4eba\\u529b\\u8d44\\u6e90"]}'
 # Json 格式返回

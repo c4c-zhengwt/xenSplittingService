@@ -19,17 +19,6 @@ def load_csv(filename):
     return [var for var in spamreader]
 
 
-def append_table_to_csv_2d(filename, content):
-    csvfile = open(filename, 'a', encoding='utf-8', newline='\n')
-    spamwriter = csv.writer(csvfile,
-                            delimiter=',',
-                            quotechar='"',
-                            quoting=csv.QUOTE_MINIMAL
-                            )
-    spamwriter.writerows(content)
-    csvfile.close()
-
-
 def save_csv_2d(filename, content):
     """
     save a list which is of two dimension to the file
@@ -46,5 +35,7 @@ def save_csv_2d(filename, content):
     return True
 # --------------------------------------------------------
 
+
+# --------------------------------------------------------
 if __name__ == '__main__':
     pass
