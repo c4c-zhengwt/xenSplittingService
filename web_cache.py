@@ -10,11 +10,17 @@ from xenSplittingService.splitting_service import ContentSplit
 @cherrypy.expose
 class webSplitService(object):
     def __init__(self):
-        self.splitter = ContentSplit()
-        running_path = self.splitter.source_path.split(os.path.sep)
+        source_path = os.path.abspath(__file__)
+        source_path = source_path.split(os.path.sep)
+        while source_path[-1] != 'xenSplittingService':
+            source_path.pop()
+        while source_path.count('xenSplittingService') >= 2:
+            source_path.remove('xenSplittingService')
+        running_path = source_path
         running_path.append('samples')
         running_path = os.path.sep.join(running_path)
-        self.splitter.running_path = running_path
+        os.chdir(running_path)
+        self.splitter = ContentSplit()
 
     @cherrypy.tools.accept(media='text/plain')
     # def GET(self):
