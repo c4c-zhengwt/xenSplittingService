@@ -5,7 +5,7 @@ import csv
 import os
 import re
 import jieba
-from xenSplittingService.china_landname import LandName
+from xenSplittingService.Toponym import LandName
 from xenSplittingService.service_configures import *
 # --------------------------
 
@@ -277,8 +277,8 @@ class ContentSplit(object):
         # ---------------------------------------------------------- derive locationchecker
         nameline.append('-')
         if not self.__any_partition_in__(namelist):
-            if locationchecker.check_landname(namelist[0]) is not None:
-                nameline[0] = locationchecker.check_landname(namelist[0])
+            if locationchecker.check_location_name(namelist[0]) is not None:
+                nameline[0] = locationchecker.check_location_name(namelist[0])
                 del namelist[0]
             else:
                 if '中国' not in namelist:
@@ -287,29 +287,29 @@ class ContentSplit(object):
                         bindex = namelist.index(')')
                         if bindex - aindex > 1:
                             for index in range(aindex+1, bindex, 1):
-                                if locationchecker.check_landname(namelist[index]) is not None:
-                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                if locationchecker.check_location_name(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_location_name(namelist[index])
                                     del namelist[index]
                                     break
                     else:
                         if '(' in namelist:
                             aindex = namelist.index('(')
                             for index in range(aindex + 1, len(namelist), 1):
-                                if locationchecker.check_landname(namelist[index]) is not None:
-                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                if locationchecker.check_location_name(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_location_name(namelist[index])
                                     del namelist[index]
                                     break
                         else:
                             for index in range(1, len(namelist), 1):
-                                if locationchecker.check_landname(namelist[index]) is not None:
-                                    nameline[0] = locationchecker.check_landname(namelist[index])
+                                if locationchecker.check_location_name(namelist[index]) is not None:
+                                    nameline[0] = locationchecker.check_location_name(namelist[index])
                                     del namelist[index]
                                     break
                 else:
                     namelist.remove('中国')
                     for index in range(1, len(namelist)):
-                        if locationchecker.check_landname(namelist[index]) is not None:
-                            nameline[0] = locationchecker.check_landname(namelist[index])
+                        if locationchecker.check_location_name(namelist[index]) is not None:
+                            nameline[0] = locationchecker.check_location_name(namelist[index])
                             del namelist[index]
                             break
         else:
@@ -320,23 +320,23 @@ class ContentSplit(object):
                     if '公司' in namelist[i]:
                         formerindex = i
                 for j in range(formerindex+1, tailindex, 1):
-                    if locationchecker.check_landname(namelist[j]) is not None:
-                        nameline[0] = locationchecker.check_landname(namelist[j])
+                    if locationchecker.check_location_name(namelist[j]) is not None:
+                        nameline[0] = locationchecker.check_location_name(namelist[j])
                         del namelist[j]
                         break
                 if nameline[0] == '-':
-                    if locationchecker.check_landname(namelist[0]) is not None:
-                        nameline[0] = locationchecker.check_landname(namelist[0])
+                    if locationchecker.check_location_name(namelist[0]) is not None:
+                        nameline[0] = locationchecker.check_location_name(namelist[0])
                         del namelist[0]
                     else:
                         for index in range(1, formerindex, 1):
-                            if locationchecker.check_landname(namelist[index]) is not None:
-                                nameline[0] = locationchecker.check_landname(namelist[index])
+                            if locationchecker.check_location_name(namelist[index]) is not None:
+                                nameline[0] = locationchecker.check_location_name(namelist[index])
                                 del namelist[index]
                                 break
             else:
-                if locationchecker.check_landname(namelist[0]) is not None:
-                    nameline[0] = locationchecker.check_landname(namelist[0])
+                if locationchecker.check_location_name(namelist[0]) is not None:
+                    nameline[0] = locationchecker.check_location_name(namelist[0])
                     del namelist[0]
         # ---------------------------------------------------------- Identify company types
         nameline.append('-')
