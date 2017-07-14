@@ -3,7 +3,7 @@
 import json
 import os
 import cherrypy
-from xenSplittingService.splitting_service import ContentSplit
+from xenSplittingService.SplittingService import ContentSplit
 # --------------------------
 
 

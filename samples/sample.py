@@ -3,7 +3,7 @@
 # setup.py that excludes installing the "samples" package
 
 import os
-from xenSplittingService.splitting_service import ContentSplit
+from xenSplittingService.SplittingService import ContentSplit
 
 def sample():
     splitter = ContentSplit()

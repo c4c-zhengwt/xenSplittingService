@@ -5,8 +5,8 @@ import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
-from xenSplittingService.CharacterRecognition import CharacterRecognition
-from xenSplittingService.service_configures import *
+from xenSplittingService.WordRecognition import CharacterRecognition
+from xenSplittingService.ServiceConfigures import *
 # --------------------------
 
 
