@@ -5,25 +5,25 @@
 
 # ------------------------------------
 class CharacterRecognition(object):
-    def __init__(self):
-        pass
+    # def __init__(self):
+    #     pass
 
     def is_chinese_char(self, uchar):
-        if uchar >= u'\u4e00' and uchar <= u'\u9fa5':
+        if u'\u4e00' <= uchar <= u'\u9fa5':
             return True
         else:
             return False
 
     def is_number(self, uchar):
         """判断一个unicode是否是数字"""
-        if uchar >= u'\u0030' and uchar <= u'\u0039':
+        if u'\u0030' <= uchar <= u'\u0039':
             return True
         else:
             return False
 
     def is_alphabetical_char(self, uchar):
         """判断一个unicode是否是英文字母"""
-        if (uchar >= u'\u0041' and uchar <= u'\u005a') or (uchar >= u'\u0061' and uchar <= u'\u007a'):
+        if (u'\u0041' <= uchar <= u'\u005a') or (u'\u0061' <= uchar <= u'\u007a'):
             return True
         else:
             return False
