@@ -77,7 +77,7 @@ class ToponymStructure(object):
 
 # ------------------------------------
 class Toponym(object):
-    def __init__(self):
+    def __init__(self, data_path=os.path.join('data')):
         source_path = str(os.path.abspath(__file__))
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
@@ -85,6 +85,7 @@ class Toponym(object):
         while 'xenSplittingService' in source_path:
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
+        self.data_path = data_path
         self.govern_level = dict()
         self.__objectification_govern_level__()
         self.__startup__()
@@ -112,7 +113,7 @@ class Toponym(object):
 
     def __startup__(self):
         self.locations = ToponymStructure(name='Earth', admin_level=self.govern_level['self'])
-        chinese_toponym = ToponymChina()
+        chinese_toponym = ToponymChina(data_path=self.data_path)
         self.locations.add_subtoponym(chinese_toponym.location)
 
     def __objectification_govern_level__(self):
@@ -128,7 +129,7 @@ class Toponym(object):
 
 class ToponymChina(Toponym):
     def __startup__(self):
-        table_pd = pd.read_excel(os.path.join(self.source_path, 'xenSplittingService', 'data', 'ToponymChinese.xlsx'))
+        table_pd = pd.read_excel(os.path.join(self.source_path, self.data_path, 'ToponymChinese.xlsx'))
         self.location = ToponymStructure(name='中国', admin_level=self.govern_level['self'])
         node_basic = self.location
         node_one = node_two = node_three = node_basic
@@ -180,7 +181,7 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
-    test_loc = Toponym()
+    test_loc = Toponym(data_path=os.path.join('xenSplittingService', 'data'))
     print(test_loc.locations.sub_toponym[0].sub_toponym[8].sub_toponym[12])
     print(test_loc.search_location_name('浦东'))
     # print(test_loc.table, type(test_loc.table))

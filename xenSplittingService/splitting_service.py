@@ -5,14 +5,14 @@ import csv
 import os
 import re
 import jieba
-from xenSplittingService.Toponym import LandName
+from xenSplittingService.Toponym import Toponym
 from xenSplittingService.service_configures import *
 # --------------------------
 
 
 # ------------------------------------
 class ContentSplit(object):
-    def __init__(self):
+    def __init__(self, data_path=os.path.join('data')):
         source_path = os.path.abspath(__file__)
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
@@ -21,31 +21,27 @@ class ContentSplit(object):
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
         self.running_path = os.getcwd()
+        self.data_path = data_path
         self.path_pre_usr_identified_dict = \
-            os.path.join(self.source_path, 'data',
-                         'pre_usr_identified_dict')
-        self.path_usr_defined_company_type_whitelist = \
-            os.path.join(self.running_path,
-                         'User_defined_company_type_whitelist.csv')
-        self.path_usr_defined_company_service_type_whitelist = \
-            os.path.join(self.running_path,
-                         'User_defined_company_service_type_whitelist.csv')
-        self.path_usr_defined_company_keyword_blacklist = \
-            os.path.join(self.running_path,
-                         'User_defined_company_keyword_blacklist.csv')
+            os.path.join(self.source_path, self.data_path, 'pre_usr_identified_dict')
+        # self.path_usr_defined_company_type_whitelist = \
+        #     os.path.join(self.running_path,
+        #                  'User_defined_company_type_whitelist.csv')
+        # self.path_usr_defined_company_service_type_whitelist = \
+        #     os.path.join(self.running_path,
+        #                  'User_defined_company_service_type_whitelist.csv')
+        # self.path_usr_defined_company_keyword_blacklist = \
+        #     os.path.join(self.running_path,
+        #                  'User_defined_company_keyword_blacklist.csv')
         self.path_company_service_type_whitelist = \
-            os.path.join(self.source_path, 'data',
-                         'package_com_service_type_whitelist.csv')
+            os.path.join(self.source_path, self.data_path, 'package_com_service_type_whitelist.csv')
         self.path_company_type_whitelist = \
-            os.path.join(self.source_path, 'data',
-                         'package_com_type_whitelist.csv')
+            os.path.join(self.source_path, self.data_path, 'package_com_type_whitelist.csv')
         self.path_company_keyword_blacklist = \
-            os.path.join(self.source_path, 'data',
-                         'package_com_keyword_blacklist.csv')
+            os.path.join(self.source_path, self.data_path, 'package_com_keyword_blacklist.csv')
         self.path_company_partition_expressions_csv = \
-            os.path.join(self.source_path, 'data',
-                         'package_com_partition_expression.csv')
-        self.landname_zh = LandName()
+            os.path.join(self.source_path, 'data', 'package_com_partition_expression.csv')
+        self.landname_checker = Toponym(data_path=self.data_path)
         self.pre_defined_company_type = ['分公司', '集团', '股份有限公司', '有限责任公司', '有限公司']
         self.reload_config_settings()
 
@@ -238,17 +234,6 @@ class ContentSplit(object):
         else:
             return False
 
-    def __is_english_char(self, uchar):
-        if (uchar >= u'\u0041' and uchar <= u'\u005a') or (uchar >= u'\u0061' and uchar <= u'\u007a'):
-            return True
-        else:
-            return False
-
-    def __is_chinese_char(self, uchar):
-        if uchar >= u'\u4e00' and uchar <= u'\u9fa5':
-            return True
-        else:
-            return False
 
     def split_firmname(self, name, enable_english_output=False, enable_digit_output=False):
         if self.is_chi_name(name, possi=0.6):
