@@ -1,19 +1,19 @@
 # -*- encoding: UTF-8 -*-
 # In this document firm name and remarks are segmented
 # --------------------------
-import csv
 import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
+from xenSplittingService.CharacterRecognition import CharacterRecognition
 from xenSplittingService.service_configures import *
 # --------------------------
 
 
 # ------------------------------------
 class ContentSplit(object):
-    def __init__(self, data_path=os.path.join('data')):
-        source_path = os.path.abspath(__file__)
+    def __init__(self, data_path=os.path.join('data'), user_data_path=None):
+        source_path = str(os.path.abspath(__file__))
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
             source_path.pop()
@@ -21,37 +21,45 @@ class ContentSplit(object):
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
         self.running_path = os.getcwd()
+        self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
-        self.path_pre_usr_identified_dict = \
-            os.path.join(self.source_path, self.data_path, 'pre_usr_identified_dict')
-        # self.path_usr_defined_company_type_whitelist = \
-        #     os.path.join(self.running_path,
-        #                  'User_defined_company_type_whitelist.csv')
-        # self.path_usr_defined_company_service_type_whitelist = \
-        #     os.path.join(self.running_path,
-        #                  'User_defined_company_service_type_whitelist.csv')
-        # self.path_usr_defined_company_keyword_blacklist = \
-        #     os.path.join(self.running_path,
-        #                  'User_defined_company_keyword_blacklist.csv')
-        self.path_company_service_type_whitelist = \
-            os.path.join(self.source_path, self.data_path, 'package_com_service_type_whitelist.csv')
-        self.path_company_type_whitelist = \
-            os.path.join(self.source_path, self.data_path, 'package_com_type_whitelist.csv')
-        self.path_company_keyword_blacklist = \
-            os.path.join(self.source_path, self.data_path, 'package_com_keyword_blacklist.csv')
-        self.path_company_partition_expressions_csv = \
-            os.path.join(self.source_path, 'data', 'package_com_partition_expression.csv')
-        self.landname_checker = Toponym(data_path=self.data_path)
-        self.pre_defined_company_type = ['分公司', '集团', '股份有限公司', '有限责任公司', '有限公司']
-        self.reload_config_settings()
-
-    def reload_config_settings(self):
+        self.land_name_checker = Toponym(data_path=self.data_path)
+        self.char_checker = CharacterRecognition()
+        self.path = dict()
+        self.path['predefined'] = dict()
+        self.path['predefined']['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
+                                                                   'developer_defined_adjustment.txt')
+        self.path['predefined']['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                              'package_com_service_type_whitelist.csv')
+        self.path['predefined']['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                       'package_com_type_whitelist.csv')
+        self.path['predefined']['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path,
+                                                                          'package_com_keyword_blacklist.csv')
+        self.path['predefined']['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
+                                                                             'package_com_partition_expression.csv')
+        self.path['user_defined'] = dict()
+        self.path['user_defined']['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
+        self.path['user_defined']['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
+        self.path['user_defined']['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
+        # --------
+        self.path_pre_usr_identified_dict = None
+        self.path_company_service_type_whitelist = None
+        self.path_company_type_whitelist = None
+        self.path_company_keyword_blacklist = None
+        self.path_company_partition_expressions_csv = None
+        # --------
+        self.path_usr_defined_company_type_whitelist = None
+        self.path_usr_defined_company_service_type_whitelist = None
+        self.path_usr_defined_company_keyword_blacklist = None
         self.checker = list()
+        self.load_checking_lists()
+
+    def load_checking_lists(self):
         try:
-            jieba.load_userdict(self.path_pre_usr_identified_dict)
+            jieba.load_userdict(self.path['predefined']['DeveloperDefined'])
         except FileNotFoundError:
-            self.checker.append('File data/pre_usr_identified_dict does not exit, but this error '
-                                'does not affect service function that much')
+            self.checker.append('File data' + str(os.path.sep) + 'developer_defined_adjustment.txt '
+                                'does not exit, but this error does not affect service function that much')
         try:
             self.__load_partition_expression__()
             # initial company_service_type_whitelist
@@ -436,7 +444,6 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
-    raise except
     # -----------------------------------
     # -----------------------------------
     end_time = time.time()
