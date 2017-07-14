@@ -6,7 +6,7 @@ import re
 import jieba
 from xenSplittingService.Toponym import Toponym
 from xenSplittingService.WordRecognition import UnicodeCharacterRecognition
-from xenSplittingService.ServiceComponents import *
+from xenSplittingService.ServiceComponents import MultiList
 # --------------------------
 
 
@@ -23,8 +23,6 @@ class ContentSplit(object):
         self.running_path = os.getcwd()
         self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
-        self.land_name_checker = Toponym(data_path=self.data_path)
-        self.char_checker = UnicodeCharacterRecognition()
         self.path = dict()
         self.path['predefined'] = dict()
         self.path['predefined']['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
@@ -51,7 +49,10 @@ class ContentSplit(object):
         self.path_usr_defined_company_type_whitelist = None
         self.path_usr_defined_company_service_type_whitelist = None
         self.path_usr_defined_company_keyword_blacklist = None
+        self.char_checker = UnicodeCharacterRecognition()
+        self.land_name_checker = Toponym(data_path=self.data_path)
         self.checker = list()
+        self.list_tag = ['package', 'user']
         self.load_checking_lists()
 
     def load_checking_lists(self):
@@ -64,21 +65,21 @@ class ContentSplit(object):
             self.__load_partition_expression__()
             # initial company_service_type_whitelist
             self.company_service_type_whitelist = \
-                self.__load_config_list__(self.path_company_service_type_whitelist,
-                                          self.path_usr_defined_company_service_type_whitelist,
-                                          warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
+                self.__load_keyword_list__(self.path_company_service_type_whitelist,
+                                           self.path_usr_defined_company_service_type_whitelist,
+                                           warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
                                                             'can not be loaded correctly')
             # initial company type whitelist
             self.company_type_whitelist = \
-                self.__load_config_list__(self.path_company_type_whitelist,
-                                          self.path_usr_defined_company_type_whitelist,
-                                          warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
+                self.__load_keyword_list__(self.path_company_type_whitelist,
+                                           self.path_usr_defined_company_type_whitelist,
+                                           warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
                                                             'can not be loaded correctly')
             # initial company_keyword_blacklist
             self.company_keyword_blacklist = \
-                self.__load_config_list__(self.path_company_keyword_blacklist,
-                                          self.path_usr_defined_company_keyword_blacklist,
-                                          warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
+                self.__load_keyword_list__(self.path_company_keyword_blacklist,
+                                           self.path_usr_defined_company_keyword_blacklist,
+                                           warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
                                                             'can not be loaded correctly')
         except FileNotFoundError:
             self.path_company_service_type_whitelist = \
@@ -96,21 +97,21 @@ class ContentSplit(object):
             self.__load_partition_expression__()
             # initial company_service_type_whitelist
             self.company_service_type_whitelist = \
-                self.__load_config_list__(self.path_company_service_type_whitelist,
-                                          self.path_usr_defined_company_service_type_whitelist,
-                                          warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
+                self.__load_keyword_list__(self.path_company_service_type_whitelist,
+                                           self.path_usr_defined_company_service_type_whitelist,
+                                           warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
                                                             'can not be loaded correctly')
             # initial company type whitelist
             self.company_type_whitelist = \
-                self.__load_config_list__(self.path_company_type_whitelist,
-                                          self.path_usr_defined_company_type_whitelist,
-                                          warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
+                self.__load_keyword_list__(self.path_company_type_whitelist,
+                                           self.path_usr_defined_company_type_whitelist,
+                                           warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
                                                             'can not be loaded correctly')
             # initial company_keyword_blacklist
             self.company_keyword_blacklist = \
-                self.__load_config_list__(self.path_company_keyword_blacklist,
-                                          self.path_usr_defined_company_keyword_blacklist,
-                                          warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
+                self.__load_keyword_list__(self.path_company_keyword_blacklist,
+                                           self.path_usr_defined_company_keyword_blacklist,
+                                           warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
                                                             'can not be loaded correctly')
         # add name in company type white list to jieba dict so that they can be outputed.
         for __item__ in self.company_type_whitelist:
@@ -121,7 +122,7 @@ class ContentSplit(object):
             jieba.add_word(__item__, freq=100, tag='n')
         self.__show_checkers__()
 
-    def __load_config_list__(self, package_defined_csv, usr_defined_csv, warning_pack_info=''):
+    def __load_keyword_list__(self, package_defined_csv, usr_defined_csv=None, warning_pack_info=''):
         __config_list__ = set()
         try:
             __file_content__ = load_csv(package_defined_csv)
@@ -136,6 +137,8 @@ class ContentSplit(object):
         except FileNotFoundError:
             __file__ = open(usr_defined_csv, 'w', encoding='utf-8')
             __file__.close()
+        except TypeError:
+            pass
         __config_list__ = frozenset(__config_list__)
         return __config_list__
 
