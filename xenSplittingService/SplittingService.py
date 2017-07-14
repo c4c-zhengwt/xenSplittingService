@@ -5,8 +5,8 @@ import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
-from xenSplittingService.WordRecognition import CharacterRecognition
-from xenSplittingService.ServiceConfigures import *
+from xenSplittingService.WordRecognition import UnicodeCharacterRecognition
+from xenSplittingService.ServiceComponents import *
 # --------------------------
 
 
@@ -24,7 +24,7 @@ class ContentSplit(object):
         self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
         self.land_name_checker = Toponym(data_path=self.data_path)
-        self.char_checker = CharacterRecognition()
+        self.char_checker = UnicodeCharacterRecognition()
         self.path = dict()
         self.path['predefined'] = dict()
         self.path['predefined']['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,

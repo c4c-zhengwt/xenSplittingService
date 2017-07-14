@@ -4,33 +4,43 @@
 
 
 # ------------------------------------
-class CharacterRecognition(object):
-    # def __init__(self):
-    #     pass
+class UnicodeCharacterRecognition(object):
+    def __init__(self):
+        self.language_list = ['english', 'chinese', 'digit', 'other']
 
-    def is_chinese_char(self, uchar):
+    def check_uchar_type(self, uchar):
+        if self.__is_chinese_char__(uchar):
+            return 'chinese'
+        elif self.__is_alphabetical_char__(uchar):
+            return 'english'
+        elif self.__is_digit__(uchar):
+            return 'digit'
+        else:
+            return 'other'
+
+    def __is_chinese_char__(self, uchar):
         if u'\u4e00' <= uchar <= u'\u9fa5':
             return True
         else:
             return False
 
-    def is_number(self, uchar):
+    def __is_digit__(self, uchar):
         """判断一个unicode是否是数字"""
         if u'\u0030' <= uchar <= u'\u0039':
             return True
         else:
             return False
 
-    def is_alphabetical_char(self, uchar):
+    def __is_alphabetical_char__(self, uchar):
         """判断一个unicode是否是英文字母"""
         if (u'\u0041' <= uchar <= u'\u005a') or (u'\u0061' <= uchar <= u'\u007a'):
             return True
         else:
             return False
 
-    def is_other_char(self, uchar):
+    def __is_other_char__(self, uchar):
         """判断是否非汉字，数字和英文字符"""
-        if not (self.is_chinese_char(uchar) or self.is_number(uchar) or self.is_alphabetical_char(uchar)):
+        if not (self.__is_chinese_char__(uchar) or self.__is_digit__(uchar) or self.__is_alphabetical_char__(uchar)):
             return True
         else:
             return False
@@ -56,21 +66,40 @@ class CharacterRecognition(object):
         if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
             return uchar
         return chr(inside_code)
+# ------------------------------------
 
-    def __string_full_to_half__(self, ustring):
+
+# ------------------------------------
+# ------------------------------------
+
+
+# ------------------------------------
+class UnicodeStringRecognition(object):
+    def __init__(self):
+        self.char_checker = UnicodeCharacterRecognition()
+
+    def full_to_half(self, ustring):
         """把字符串全角转半角"""
-        return "".join([self.fullwidth_to_halfwidth(uchar) for uchar in ustring])
+        return ''.join([self.char_checker.fullwidth_to_halfwidth(uchar) for uchar in ustring])
 
     def uniform(self, ustring):
         """格式化字符串，完成全角转半角，大写转小写的工作"""
-        return self.__string_full_to_half__(ustring).lower()
+        return self.full_to_half(ustring).lower()
+
+    def identify_language(self, ustring):
+        counter = dict()
+        for lang in self.char_checker.language_list:
+            counter[lang] = 0
+        for index_char in range(len(ustring)):
+            ustring_type = self.char_checker.check_uchar_type(ustring[index_char])
+            counter[ustring_type] += 1
+        possible_key = self.char_checker.language_list[-1]
+        better_value = 0
+        for key, value in counter:
+            if value > better_value:
+                possible_key = key
+        return possible_key
 # ------------------------------------
-
-
-# ------------------------------------
-# ------------------------------------
-
-
 # ------------------------------------
 
 
