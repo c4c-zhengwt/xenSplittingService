@@ -17,7 +17,7 @@ class ContentSplit(object):
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
             source_path.pop()
-        while source_path.count('xenSplittingService') >= 1:
+        while 'xenSplittingService' in source_path:
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
         self.running_path = os.getcwd()

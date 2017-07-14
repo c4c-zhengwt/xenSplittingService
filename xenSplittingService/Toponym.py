@@ -68,7 +68,7 @@ class ToponymStructure(object):
             return True
         elif self.name in name and self.administration_level.tag in name:
             return True
-        elif name in self.name and (len(self.name)-len(name)) <= 1:
+        elif name in self.name and (len(self.name)-len(name)) <= 1 and len(name) >= 2:
             return True
         else:
             return False
@@ -90,10 +90,12 @@ class Toponym(object):
         self.__startup__()
 
     def check_location_name(self, name: str):
+        # TODO: To check location in a better manner
         flag, tag = self.search_location_name(name)
         return flag
 
     def search_location_name(self, name: str):
+        # TODO: To search name in different country
         return self.__recursively_search_name__(node=self.locations.sub_toponym[0], name=name)
 
     def __recursively_search_name__(self, node: ToponymStructure, name: str):
