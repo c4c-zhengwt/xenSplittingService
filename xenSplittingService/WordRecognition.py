@@ -74,26 +74,24 @@ class UnicodeCharacterRecognition(object):
 
 
 # ------------------------------------
-class UnicodeStringRecognition(object):
-    def __init__(self):
-        self.char_checker = UnicodeCharacterRecognition()
-
-    def full_to_half(self, ustring):
+class UnicodeStringRecognition(UnicodeCharacterRecognition):
+    def full_2_half(self, ustring):
         """把字符串全角转半角"""
-        return ''.join([self.char_checker.fullwidth_to_halfwidth(uchar) for uchar in ustring])
+        return ''.join([self.fullwidth_to_halfwidth(uchar) for uchar in ustring])
 
     def uniform(self, ustring):
         """格式化字符串，完成全角转半角，大写转小写的工作"""
         return self.full_to_half(ustring).lower()
 
     def identify_language(self, ustring):
+        """Return the language of the string"""
         counter = dict()
-        for lang in self.char_checker.language_list:
+        for lang in self.language_list:
             counter[lang] = 0
         for index_char in range(len(ustring)):
-            ustring_type = self.char_checker.check_uchar_type(ustring[index_char])
+            ustring_type = self.check_uchar_type(ustring[index_char])
             counter[ustring_type] += 1
-        possible_key = self.char_checker.language_list[-1]
+        possible_key = self.language_list[-1]
         better_value = 0
         for key, value in counter:
             if value > better_value:
