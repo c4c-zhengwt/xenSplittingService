@@ -1,8 +1,8 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------------------------------------
-import os
 import csv
 import pandas as pd
+from openpyxl import load_workbook
 # --------------------------------------------------------
 
 
@@ -39,7 +39,6 @@ def save_csv(filename, content):
 
 
 # --------------------------------------------------------
-from openpyxl import load_workbook
 def load_excel(path, sheetname=0, header=0, skiprows=None, skip_footer=0, index_col=None, names=None,
                parse_cols=None, parse_dates=False, date_parser=None, na_values=None, thousands=None,
                convert_float=True, has_index_names=None, converters=None, dtype=None, true_values=None,
@@ -57,25 +56,22 @@ class ExcelFileWriter(object):
         self.writer = pd.ExcelWriter(path=path, engine=engine)
 
     def append_sheet(self, content: pd.DataFrame, sheet_name='Sheet1', na_rep=str(), float_format=None,
-               columns=None, header=True, index=True, index_label=None, startrow=0, startcol=0, merge_cells=True,
-               encoding=None, inf_rep='inf', verbose=True, freeze_panes=None):
+                     columns=None, header=True, index=True, index_label=None, startrow=0, startcol=0, merge_cells=True,
+                     encoding=None, inf_rep='inf', verbose=True, freeze_panes=None):
         content.to_excel(excel_writer=self.writer, sheet_name=sheet_name, na_rep=na_rep, float_format=float_format,
                          columns=columns, header=header, index=index, index_label=index_label, startrow=startrow,
                          startcol=startcol, merge_cells=merge_cells, encoding=encoding, inf_rep=inf_rep,
                          verbose=verbose, freeze_panes=freeze_panes)
 
+    def save(self):
+        self.writer.save()
+
     def finish(self):
+        self.writer.save()
         self.writer.close()
         del self
-
-# data = pd.read_excel('test1.xlsx', sheetname=0) #
-# col_data = list(data.ix[:, 5])  # 获取除表头外开始的第五列数据
-# row_data = list(data.ix[5,:])  # 获取除表头外开始的第五行数据
-# writer = pd.ExcelWriter('test2.xlsx', engine='openpyxl')
-# book = load_workbook('test2.xlsx') writer.book = book
-# result = pd.DataFrame(row_data)
-# result.to_excel(writer,sheet_name=0, index=False) writer.save()
 # --------------------------------------------------------
+
 
 # --------------------------------------------------------
 class MultiList(object):
@@ -109,6 +105,46 @@ class MultiList(object):
             raise KeyError('MultiList.remove(tag, x): tag not in MultiList')
         except ValueError:
             raise ValueError('MultiList.remove(tag, x): x not in MultiList')
+# --------------------------------------------------------
+
+
+# --------------------------------------------------------
+class MultiTable(object):
+    def __init__(self, file_path: str, indexing=True):
+        excel_book = load_workbook(filename=file_path, read_only=True)
+        sheet_name_list = excel_book.get_sheet_names
+        self.data_dicts = dict()
+        self.data_list_for_search = dict()
+        for sheet in sheet_name_list:
+            self.data_dicts[sheet] = pd.read_excel(file_path, sheetname=sheet)
+        if indexing is True:
+            self.__indexing__()
+
+    def __indexing__(self):
+        for sheet in self.data_dicts:
+            columes = self.data_dicts[sheet].columns.tolist()
+            for col in columes:
+                values = self.data_dicts[sheet][col].tolist()
+                for val in values:
+                    self.data_list_for_search[val] = 0
+
+    def contain(self, element):
+        if len(self.data_list_for_search) != 0:
+            return element in self.data_list_for_search
+        else:
+            for sheet in self.data_dicts:
+                columes = self.data_dicts[sheet].columns.tolist()
+                for col in columes:
+                    values = self.data_dicts[sheet][col].tolist()
+                    if element in values:
+                        return True
+            return False
+
+    def add(self, sheet: str, colume: str, element: str):
+        if sheet in self.data_dicts:
+            pass
+        else:
+            raise ValueError('sheet {0} not in Multitable'.format(sheet))
 # --------------------------------------------------------
 
 

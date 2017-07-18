@@ -24,15 +24,20 @@ class ContentSplit(object):
         self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
         self.path_predefined = dict()
-        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path, 'DeveloperDefinedAdjustment.txt')
-        self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_service_type_whitelist.csv')
-        self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_type_whitelist.csv')
-        self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path, 'package_com_keyword_blacklist.csv')
-        self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path, 'package_com_partition_expression.csv')
-        self.path_userdefined = dict()
-        self.path_userdefined['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
-        self.path_userdefined['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
-        self.path_userdefined['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
+        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
+                                                                'DeveloperDefinedAdjustment.txt')
+        self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                           'PackageDefinedServiceTypeWhitelist.xlsx')
+        self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                    'PackageDefinedFirmTypeWhitelist.xlsx')
+        self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path,
+                                                                       'PackageDefinedKeywordBlacklist.xlsx')
+        self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
+                                                                          'PackageDefinedPartitionExpression.xlsx')
+        # self.path_userdefined = dict()
+        # self.path_userdefined['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
+        # self.path_userdefined['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
+        # self.path_userdefined['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
         # --------
         self.path_pre_usr_identified_dict = None
         self.path_company_service_type_whitelist = None

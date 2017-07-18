@@ -95,9 +95,9 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'jieba>=0.38',
+        'jieba>=0.38',      # basic splitting engine
         'pandas>=0.20',
-        'openpyxl>=2.4.0'
+        'openpyxl>=2.4.0'   # Excel writing engine
     ],
 
     # List additional groups of dependencies here (e.g. development
