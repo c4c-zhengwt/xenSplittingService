@@ -5,9 +5,10 @@
 import os
 import re
 import pandas as pd
+from xenSplittingService.ServiceComponents import load_excel
 ######################################
 # 把每个国家的地名组织成 ToponymStructure 定义的树状结构，
-# 之后的的扩展只需要用 Toponym+countryname 的类定义新加入国家的
+# 之后的的扩展只需要用 Toponym + countryname 的类定义新加入国家的
 # 树状结构
 # 新的地名搜索可以完成从小地名开始到其所属地名的链式搜索
 ######################################
@@ -135,7 +136,9 @@ class Toponym(object):
 
 class ToponymChina(Toponym):
     def __startup__(self):
-        table_pd = pd.read_excel(os.path.join(self.source_path, self.data_path, 'ToponymChinese.xlsx'))
+        table_pd = load_excel(os.path.join(self.source_path, self.data_path, 'ToponymInfomation.xlsx'),
+                              sheetname='中国行政区')
+        # table_pd = pd.read_excel(os.path.join(self.source_path, self.data_path, 'ToponymInfomation.xlsx'))
         self.location = ToponymStructure(name='中国', admin_level=self.govern_level['self'])
         node_basic = self.location
         node_one = node_two = node_three = node_basic

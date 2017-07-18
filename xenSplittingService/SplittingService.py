@@ -23,22 +23,16 @@ class ContentSplit(object):
         self.running_path = os.getcwd()
         self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
-        self.path = dict()
-        self.path['predefined'] = dict()
-        self.path['predefined']['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
-                                                                   'developer_defined_adjustment.txt')
-        self.path['predefined']['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
-                                                                              'package_com_service_type_whitelist.csv')
-        self.path['predefined']['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
-                                                                       'package_com_type_whitelist.csv')
-        self.path['predefined']['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path,
-                                                                          'package_com_keyword_blacklist.csv')
-        self.path['predefined']['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
-                                                                             'package_com_partition_expression.csv')
-        self.path['user_defined'] = dict()
-        self.path['user_defined']['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
-        self.path['user_defined']['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
-        self.path['user_defined']['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
+        self.path_predefined = dict()
+        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path, 'developer_defined_adjustment.txt')
+        self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_service_type_whitelist.csv')
+        self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_type_whitelist.csv')
+        self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path, 'package_com_keyword_blacklist.csv')
+        self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path, 'package_com_partition_expression.csv')
+        self.path_userdefined = dict()
+        self.path_userdefined['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
+        self.path_userdefined['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
+        self.path_userdefined['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
         # --------
         self.path_pre_usr_identified_dict = None
         self.path_company_service_type_whitelist = None
@@ -57,43 +51,10 @@ class ContentSplit(object):
 
     def load_checking_lists(self):
         try:
-            jieba.load_userdict(self.path['predefined']['DeveloperDefined'])
+            jieba.load_userdict(self.path_predefined['DeveloperDefined'])
         except FileNotFoundError:
             self.checker.append('File data' + str(os.path.sep) + 'developer_defined_adjustment.txt '
                                 'does not exit, but this error does not affect service function that much')
-        try:
-            self.__load_partition_expression__()
-            # initial company_service_type_whitelist
-            self.company_service_type_whitelist = \
-                self.__load_keyword_list__(self.path_company_service_type_whitelist,
-                                           self.path_usr_defined_company_service_type_whitelist,
-                                           warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
-                                                            'can not be loaded correctly')
-            # initial company type whitelist
-            self.company_type_whitelist = \
-                self.__load_keyword_list__(self.path_company_type_whitelist,
-                                           self.path_usr_defined_company_type_whitelist,
-                                           warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
-                                                            'can not be loaded correctly')
-            # initial company_keyword_blacklist
-            self.company_keyword_blacklist = \
-                self.__load_keyword_list__(self.path_company_keyword_blacklist,
-                                           self.path_usr_defined_company_keyword_blacklist,
-                                           warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
-                                                            'can not be loaded correctly')
-        except FileNotFoundError:
-            self.path_company_service_type_whitelist = \
-                os.path.join(self.source_path, 'xenSplittingService', 'data',
-                             'package_com_service_type_whitelist.csv')
-            self.path_company_type_whitelist = \
-                os.path.join(self.source_path, 'xenSplittingService', 'data',
-                             'package_com_type_whitelist.csv')
-            self.path_company_keyword_blacklist = \
-                os.path.join(self.source_path, 'xenSplittingService', 'data',
-                             'package_com_keyword_blacklist.csv')
-            self.path_company_partition_expressions_csv = \
-                os.path.join(self.source_path, 'xenSplittingService', 'data',
-                             'package_com_partition_expression.csv')
             self.__load_partition_expression__()
             # initial company_service_type_whitelist
             self.company_service_type_whitelist = \
