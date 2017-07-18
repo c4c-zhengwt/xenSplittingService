@@ -24,7 +24,7 @@ class ContentSplit(object):
         self.user_data_path = user_data_path    # TODO: check and modify user_data_path
         self.data_path = data_path
         self.path_predefined = dict()
-        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path, 'developer_defined_adjustment.txt')
+        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path, 'DeveloperDefinedAdjustment.txt')
         self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_service_type_whitelist.csv')
         self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path, 'package_com_type_whitelist.csv')
         self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path, 'package_com_keyword_blacklist.csv')
@@ -53,7 +53,7 @@ class ContentSplit(object):
         try:
             jieba.load_userdict(self.path_predefined['DeveloperDefined'])
         except FileNotFoundError:
-            self.checker.append('File data' + str(os.path.sep) + 'developer_defined_adjustment.txt '
+            self.checker.append('File data' + str(os.path.sep) + 'DeveloperDefinedAdjustment.txt '
                                 'does not exit, but this error does not affect service function that much')
             self.__load_partition_expression__()
             # initial company_service_type_whitelist

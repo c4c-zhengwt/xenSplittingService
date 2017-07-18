@@ -1,6 +1,6 @@
 # xenSplittingService
 
-## 开始使用
+## 配置
 
 本服务基于python 3，请确保已安装setuptools包
 
@@ -9,15 +9,12 @@ Terminal安装
     git clone --recursive https://github.com/mingotang/xenSplittingService
     cd xenSplittingService
 
-若运行环境仅使用Python 3：
-
-    python setup.py install
 
 若运行环境同时使用Python 2&3
 
     python3 setup.py install
 
-## 调用方式
+## 调用
 
 创建服务对象以初始化自定义字典信息、名称白名单、名称黑名单和服务类型白名单。
 
@@ -67,6 +64,7 @@ splitter.split_firmname('无锡市外服人力资源有限公司',
 
 ## 修改配置文件
 
+### 配置文件组织方式：
 
 本切词服务共包含以下配置文件（现阶段因为需要手动复制data文件夹似乎内置配置文件和用户配置文件是同样的结果）：
 
@@ -159,10 +157,3 @@ import requests
 - '7'：把参数`words`对应内容添加至公司类型白名单
 - '8'：把参数`words`对应内容添加至公司服务类型白名单
 - '9'：把参数`words`对应内容添加至公司分词后禁止输出名单
-
-
-## 待实现功能：
-
-- 英文公司名字和备注的分词
-
-
