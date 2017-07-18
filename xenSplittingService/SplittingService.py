@@ -6,7 +6,7 @@ import re
 import jieba
 from xenSplittingService.Toponym import Toponym
 from xenSplittingService.WordRecognition import UnicodeCharacterRecognition
-from xenSplittingService.ServiceComponents import MultiList
+from xenSplittingService.ServiceComponents import MultiList, ExcelFileWriter, load_excel
 # --------------------------
 
 
