@@ -81,7 +81,7 @@ class UnicodeStringRecognition(UnicodeCharacterRecognition):
 
     def uniform(self, ustring):
         """格式化字符串，完成全角转半角，大写转小写的工作"""
-        return self.full_to_half(ustring).lower()
+        return self.full_2_half(ustring).lower()
 
     def identify_language(self, ustring):
         """Return the language of the string"""
