@@ -5,7 +5,7 @@ import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
-from xenSplittingService.WordRecognition import UnicodeStringRecognition
+from xenSplittingService.ServiceComponents import UnicodeStringRecognition
 # --------------------------
 
 
@@ -47,7 +47,7 @@ class ContentSplit(object):
         self.path_usr_defined_company_type_whitelist = None
         self.path_usr_defined_company_service_type_whitelist = None
         self.path_usr_defined_company_keyword_blacklist = None
-        self.string_checker = UnicodeStringRecognition()
+        self.ustring_checker = UnicodeStringRecognition()
         self.land_name_checker = Toponym(data_path=self.data_path)
         self.checker = list()
         self.list_tag = ['package', 'user']
@@ -416,7 +416,7 @@ if __name__ == '__main__':
     # -----------------------------------
     end_time = time.time()
     duration = end_time - start_time
-    hour = int(duration)//3600
+    hour = int(duration) // 3600
     minutes = int(duration) // 60 - 60 * hour
     seconds = duration % 60
-    print('\nRunning time: %d h %d m %f s' % (hour, minutes, seconds))
+    print('\nRunning time: {0:d} h {1:d} m {2:.2f} s'.format(hour, minutes, seconds))

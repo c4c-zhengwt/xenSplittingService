@@ -1,40 +1,106 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------------------------------------
-import csv
 import pandas as pd
-from xenSplittingService.WordRecognition import UnicodeStringRecognition
+from xenSplittingService.DataStructure import CountingDict
 # --------------------------------------------------------
 
 
 # --------------------------------------------------------
-# read and write csv file
-def load_csv(filename):
-    """
-    load a list which is of two dimension
-    with lines in list and columns in sub_lists
-    """
-    csvfile = open(filename, 'r', encoding='utf-8', newline='')
-    spamreader = csv.reader(csvfile,
-                            delimiter=',',
-                            quotechar='"'
-                            )
-    return [var for var in spamreader]
+class UnicodeCharacterRecognition(object):
+    def __init__(self):
+        self.language_list = ['english', 'chinese', 'digit', 'other']
+
+    def check_uchar_type(self, uchar):
+        if self.__is_chinese_char__(uchar):
+            return 'chinese'
+        elif self.__is_alphabetical_char__(uchar):
+            return 'english'
+        elif self.__is_digit__(uchar):
+            return 'digit'
+        else:
+            return 'other'
+
+    def __is_chinese_char__(self, uchar):
+        if u'\u4e00' <= uchar <= u'\u9fa5':
+            return True
+        else:
+            return False
+
+    def __is_digit__(self, uchar):
+        """判断一个unicode是否是数字"""
+        if u'\u0030' <= uchar <= u'\u0039':
+            return True
+        else:
+            return False
+
+    def __is_alphabetical_char__(self, uchar):
+        """判断一个unicode是否是英文字母"""
+        if (u'\u0041' <= uchar <= u'\u005a') or (u'\u0061' <= uchar <= u'\u007a'):
+            return True
+        else:
+            return False
+
+    def __is_other_char__(self, uchar):
+        """判断是否非汉字，数字和英文字符"""
+        if not (self.__is_chinese_char__(uchar) or self.__is_digit__(uchar) or self.__is_alphabetical_char__(uchar)):
+            return True
+        else:
+            return False
+
+    def halfwidth_to_fullwidth(self, uchar):
+        """半角转全角"""
+        inside_code = ord(uchar)
+        if inside_code < 0x0020 or inside_code > 0x7e:  # 不是半角字符就返回原来的字符
+            return uchar
+        if inside_code == 0x0020:  # 除了空格其他的全角半角的公式为:半角=全角-0xfee0
+            inside_code = 0x3000
+        else:
+            inside_code += 0xfee0
+        return chr(inside_code)
+
+    def fullwidth_to_halfwidth(self, uchar):
+        """全角转半角"""
+        inside_code = ord(uchar)
+        if inside_code == 0x3000:
+            inside_code = 0x0020
+        else:
+            inside_code -= 0xfee0
+        if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
+            return uchar
+        return chr(inside_code)
+# --------------------------------------------------------
 
 
-def save_csv(filename, content):
-    """
-    save a list which is of two dimension to the file
-    with lines in list and columns in sub_lists
-    """
-    csvfile = open(filename, 'w', encoding='utf-8', newline='')
-    spamwriter = csv.writer(csvfile,
-                            delimiter=',',
-                            quotechar='"',
-                            quoting=csv.QUOTE_MINIMAL
-                            )
-    spamwriter.writerows(content)
-    csvfile.close()
-    return True
+# --------------------------------------------------------
+class UnicodeStringRecognition(UnicodeCharacterRecognition):
+    def check_ustring_type(self, ustring):
+        tag_dict = CountingDict()
+        for char in ustring:
+            tag_dict.count(self.check_uchar_type(char))
+        return tag_dict.sort_by_weights(inverse=True)[0]
+
+    def full_2_half(self, ustring):
+        """把字符串全角转半角"""
+        return ''.join([self.fullwidth_to_halfwidth(uchar) for uchar in ustring])
+
+    def uniform(self, ustring):
+        """格式化字符串，完成全角转半角，大写转小写的工作"""
+        return self.full_2_half(ustring).lower()
+
+    def identify_language(self, ustring):
+        """Return the language of the string"""
+        counter = dict()
+        for lang in self.language_list:
+            counter[lang] = 0
+        for index_char in range(len(ustring)):
+            ustring_type = self.check_uchar_type(ustring[index_char])
+            counter[ustring_type] += 1
+        possible_key = self.language_list[-1]
+        better_value = 0
+        for key, value in counter:
+            if value > better_value:
+                possible_key = key
+        return possible_key
 # --------------------------------------------------------
 
 
@@ -75,6 +141,11 @@ class ExcelFileWriter(object):
 
 # --------------------------------------------------------
 class ExcelTable(object):
+    """
+    ExcelTable defined to match the white/black lists
+    sheetname - language map:
+        chinese: 中文
+    """
     def __init__(self, excel_path: str,
                  header=0, skiprows=None, skip_footer=0, index_col=None, names=None,
                  parse_cols=None, parse_dates=False, date_parser=None, na_values=None, thousands=None,
@@ -82,19 +153,30 @@ class ExcelTable(object):
                  false_values=None, engine=None, squeeze=False
                  ):
         self.excel_file_path = excel_path
-        excel_file_chi = pd.read_excel(excel_path, sheetname='中文', header=header, skiprows=skiprows,
-                                       skip_footer=skip_footer, index_col=index_col, names=names,
-                                       parse_cols=parse_cols, parse_dates=parse_dates, date_parser=date_parser,
-                                       na_values=na_values, thousands=thousands, convert_float=convert_float,
-                                       has_index_names=has_index_names, converters=converters, dtype=dtype,
-                                       true_values=true_values, false_values=false_values, engine=engine,
-                                       squeeze=squeeze)
+        self.language_list = ('chinese',)
+        self.sheetname2language_dict = dict()
+        self.language2sheetname_dict = dict()
+        self.__initiate_words_transformation_dict__()
         self.excel_file = dict()
-        self.excel_file['chinese'] = excel_file_chi
+        for language in self.language_list:
+            self.excel_file[language] = pd.read_excel(excel_path, sheetname=self.language2sheetname_dict[language],
+                                                      header=header, skiprows=skiprows, skip_footer=skip_footer,
+                                                      index_col=index_col, names=names, parse_cols=parse_cols,
+                                                      parse_dates=parse_dates, date_parser=date_parser,
+                                                      na_values=na_values, thousands=thousands,
+                                                      convert_float=convert_float, has_index_names=has_index_names,
+                                                      converters=converters, dtype=dtype, true_values=true_values,
+                                                      false_values=false_values, engine=engine, squeeze=squeeze)
         self.data_list_for_search = dict()
         self.__initiate_list_for_search__()
 
+    def __initiate_words_transformation_dict__(self):
+        self.sheetname2language_dict['中文'] = 'chinese'  # initiate sheetname - language transformation
+        for key in self.sheetname2language_dict:
+            self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
+
     def __initiate_list_for_search__(self):
+        self.data_list_for_search = dict()
         for table_key in self.excel_file:
             pd_table = self.excel_file[table_key]
             key_list = pd_table.keys()
@@ -131,6 +213,22 @@ class ExcelTable(object):
                         continue
                 if flag is False:
                     self.excel_file[language].loc[table.shape[0], colume] = element
+                self.__initiate_list_for_search__()
+
+    def save(self, save_as=str()):
+        if save_as != str():
+            file_path = save_as
+        else:
+            file_path = self.excel_file_path
+        writer = pd.ExcelWriter(path=file_path, engine='openpyxl')
+        for table_key in self.excel_file:
+            table = self.excel_file[table_key]
+            table.to_excel(excel_writer=writer, sheet_name=self.language2sheetname_dict[table_key], na_rep='',
+                           float_format=None, columns=None, header=True, index=False, index_label=None, startrow=0,
+                           startcol=0, merge_cells=False, encoding=None, inf_rep='inf', verbose=False,
+                           freeze_panes=None)
+        writer.save()
+        writer.close()
 # --------------------------------------------------------
 
 
@@ -144,10 +242,12 @@ if __name__ == '__main__':
     # print(data.loc[0, '分店'], type(data.loc[0, '分店']))
     # print(data.loc[0, '分行'], type(data.loc[0, '分行']))
     # print(type(data))
-    data = ExcelTable(excel_path='../data/PackageDefinedPartitionExpression.xlsx')
-    data.add(colume='分店', element='test')
-    data.add(colume='分行', element='test')
+    # data = ExcelTable(excel_path='../data/PackageDefinedPartitionExpression.xlsx')
+    data = ExcelTable(excel_path='../test.xlsx')
+    data.add(colume='分店', element='test01')
+    data.add(colume='分行', element='test02')
     print(data.excel_file['chinese'])
+    data.save(save_as='../test.xlsx')
     # ------------------------------
     end_time = time.time()
     duration = end_time - start_time

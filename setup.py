@@ -96,7 +96,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'jieba>=0.38',      # basic splitting engine
-        'pandas>=0.20',
+        'pandas>=0.20',     # data frame package
         'openpyxl>=2.4.0'   # Excel writing engine
     ],
 
