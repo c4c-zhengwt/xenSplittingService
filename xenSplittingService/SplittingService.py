@@ -23,28 +23,13 @@ class ContentSplit(object):
         self.running_path = os.getcwd()
         self.data_path = os.path.join(self.source_path, data_path)
         self.path_predefined = dict()
-        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
-                                                                'DeveloperDefinedAdjustment.txt')
-        self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
-                                                                           'PackageDefinedServiceTypeWhitelist.xlsx')
-        self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
-                                                                    'PackageDefinedFirmTypeWhitelist.xlsx')
-        self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path,
-                                                                       'PackageDefinedKeywordBlacklist.xlsx')
-        self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
-                                                                          'PackageDefinedPartitionExpression.xlsx')
-        if user_data_path != None:
+        self.path_userdefined = dict()
+        if user_data_path is not None:
             self.user_data_path = user_data_path
         else:
             self.user_data_path = self.running_path
-        if enable_user_data is True:
-            self.path_userdefined = dict()
-            self.path_userdefined['CompanyTypeWhitelist'] = \
-                os.path.join(self.user_data_path, 'UserDefinedCompanyTypeWhitelist.xlsx')
-            self.path_userdefined['CompanyServiceTypeWhitelist'] = \
-                os.path.join(self.user_data_path, 'UserDefinedCompanyServiceTypeWhitelist.xlsx')
-            self.path_userdefined['CompanyKeywordBlacklist'] = \
-                os.path.join(self.user_data_path, 'UserDefinedCompanyKeywordBlacklist.xlsx')
+        self.enable_user_data = enable_user_data
+        self.__define_path_dict__()
         # --------
         self.path_pre_usr_identified_dict = None
         self.path_company_service_type_whitelist = None
@@ -55,11 +40,42 @@ class ContentSplit(object):
         self.path_usr_defined_company_type_whitelist = None
         self.path_usr_defined_company_service_type_whitelist = None
         self.path_usr_defined_company_keyword_blacklist = None
+        # --------
         self.ustring_checker = UnicodeStringRecognition()
         self.toponym_checker = Toponym(data_path=self.data_path)
+        # --------
+        self.keywords_predefined = dict()
+        self.keywords_usrdefined = dict()
+        self.__load_black_white_list__()
+        # --------
         self.checker = list()
         self.list_tag = ['package', 'user']
         self.load_checking_lists()
+
+    def __define_path_dict__(self):
+        self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
+                                                                'DeveloperDefinedAdjustment.txt')
+        self.path_predefined['CompanyServiceTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                           'PackageDefinedServiceTypeWhitelist.xlsx')
+        self.path_predefined['CompanyTypeWhitelist'] = os.path.join(self.source_path, self.data_path,
+                                                                    'PackageDefinedFirmTypeWhitelist.xlsx')
+        self.path_predefined['CompanyKeywordBlacklist'] = os.path.join(self.source_path, self.data_path,
+                                                                       'PackageDefinedKeywordBlacklist.xlsx')
+        self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
+                                                                          'PackageDefinedPartitionExpression.xlsx')
+        if self.enable_user_data is True:
+            self.path_userdefined['CompanyTypeWhitelist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyTypeWhitelist.xlsx')
+            self.path_userdefined['CompanyServiceTypeWhitelist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyServiceTypeWhitelist.xlsx')
+            self.path_userdefined['CompanyKeywordBlacklist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyKeywordBlacklist.xlsx')
+
+    def __load_black_white_list__(self):
+        self.keywords_predefined['CompanyServiceTypeWhitelist'] = \
+            BlackWhiteObject(excel_path=self.path_predefined['CompanyServiceTypeWhitelist'])
+        self.keywords_predefined['CompanyTypeWhitelist'] = \
+            BlackWhiteObject(excel_path=self.path_predefined['CompanyTypeWhitelist'])
 
     def load_checking_lists(self):
         try:
