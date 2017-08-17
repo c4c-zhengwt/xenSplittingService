@@ -4,7 +4,7 @@
 
 import os
 import re
-from xenSplittingService.ServiceComponents import load_excel, ExcelTable
+from xenSplittingService.ServiceComponents import ToponymTable
 ######################################
 # 把每个国家的地名组织成 ToponymStructure 定义的树状结构，
 # 之后的的扩展只需要用 Toponym + countryname 的类定义新加入国家的
@@ -91,7 +91,8 @@ class Toponym(object):
         while 'xenSplittingService' in source_path:
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
-        self.data_path = data_path
+        self.path_data = data_path
+        self.data_excel_path = os.path.join(self.source_path, data_path, 'ToponymInfomation.xlsx')
         self.govern_level = dict()
         self.__objectification_govern_level__()
         self.__startup__()
@@ -119,7 +120,7 @@ class Toponym(object):
 
     def __startup__(self):
         self.locations = ToponymStructure(name='Earth', admin_level=self.govern_level['self'])
-        chinese_toponym = ToponymChina(data_path=self.data_path)
+        chinese_toponym = ToponymChina(data_path=self.path_data)
         self.locations.add_subtoponym(chinese_toponym.location)
 
     def __objectification_govern_level__(self):
@@ -134,9 +135,10 @@ class Toponym(object):
 
 
 class ToponymChina(Toponym):
+    # TODO: set up a ToponymTable object to realize add/remove process
     def __startup__(self):
-        table_pd = load_excel(os.path.join(self.source_path, self.data_path, 'ToponymInfomation.xlsx'),
-                              sheetname='中国行政区')
+        excel_object = ToponymTable(excel_path=self.data_excel_path)
+        table_pd = excel_object.get(language='chinese')
         # table_pd = pd.read_excel(os.path.join(self.source_path, self.data_path, 'ToponymInfomation.xlsx'))
         self.location = ToponymStructure(name='中国', admin_level=self.govern_level['self'])
         node_basic = self.location

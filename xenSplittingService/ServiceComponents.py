@@ -140,11 +140,9 @@ class ExcelFileWriter(object):
 
 
 # --------------------------------------------------------
-class ExcelTable(object):
+class ExcelObject(object):
     """
-    ExcelTable defined to match the white/black lists
-    sheetname - language map:
-        chinese: 中文
+    ExcelTable
     """
     def __init__(self, excel_path: str,
                  header=0, skiprows=None, skip_footer=0, index_col=None, names=None,
@@ -171,9 +169,7 @@ class ExcelTable(object):
         self.__initiate_list_for_search__()
 
     def __initiate_words_transformation_dict__(self):
-        self.sheetname2language_dict['中文'] = 'chinese'  # initiate sheetname - language transformation
-        for key in self.sheetname2language_dict:
-            self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
+        raise NameError('ExcelObject.__initiate_words_transformation_dict__: method not defined')
 
     def __initiate_list_for_search__(self):
         self.data_list_for_search = dict()
@@ -192,13 +188,27 @@ class ExcelTable(object):
                         else:
                             self.data_list_for_search[cell] = 0
 
+    def get(self, sheetname='', language=''):
+        if sheetname == '' and language == '':
+            raise ValueError('ExcelObject.get: parameter sheetname and language can be empty at the same time')
+        elif sheetname != '':
+            if sheetname not in self.sheetname2language_dict:
+                raise IndexError('ExcelObject.get: parameter sheetname {0} not in Excel table'.format(sheetname))
+            else:
+                return self.excel_file[self.sheetname2language_dict[sheetname]]
+        else:
+            if language not in self.language2sheetname_dict:
+                raise IndexError('ExcelObject.get: parameter language {0} not in Excel table'.format(language))
+            else:
+                return self.excel_file[language]
+
     def contain(self, element: str):
         return element in self.data_list_for_search
 
     def add(self, colume: str, element: str):
         language = UnicodeStringRecognition().check_ustring_type(colume)
         if language not in self.excel_file:
-            raise IndexError('ExcelTable.add: colume {0} not in table'.format(colume))
+            raise IndexError('ExcelObject.add: colume {0} not in table'.format(colume))
         else:
             if element in self.data_list_for_search:
                 pass
@@ -233,6 +243,37 @@ class ExcelTable(object):
 
 
 # --------------------------------------------------------
+class BlackWhiteObject(ExcelObject):
+    """
+    ExcelTable defined to match the white/black lists
+    sheetname - language map:
+        chinese: 中文
+    """
+    def __initiate_words_transformation_dict__(self):
+        self.sheetname2language_dict['中文'] = 'chinese'  # initiate sheetname - language transformation
+        for key in self.sheetname2language_dict:
+            self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
+# --------------------------------------------------------
+
+
+# --------------------------------------------------------
+class ToponymTable(ExcelObject):
+    """
+    ToponymTable defined to match the toponym
+    sheetname - language map:
+        chinese: 中文
+    """
+    def __initiate_list_for_search__(self):
+        pass
+
+    def __initiate_words_transformation_dict__(self):
+        self.sheetname2language_dict['中国行政区'] = 'chinese'  # initiate sheetname - language transformation
+        for key in self.sheetname2language_dict:
+            self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
+# --------------------------------------------------------
+
+
+# --------------------------------------------------------
 if __name__ == '__main__':
     import time
     start_time = time.time()
@@ -243,7 +284,7 @@ if __name__ == '__main__':
     # print(data.loc[0, '分行'], type(data.loc[0, '分行']))
     # print(type(data))
     # data = ExcelTable(excel_path='../data/PackageDefinedPartitionExpression.xlsx')
-    data = ExcelTable(excel_path='../test.xlsx')
+    data = ExcelObject(excel_path='../test.xlsx')
     data.add(colume='分店', element='test01')
     data.add(colume='分行', element='test02')
     print(data.excel_file['chinese'])

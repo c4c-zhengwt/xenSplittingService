@@ -5,13 +5,14 @@ import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
+from xenSplittingService.ServiceComponents import BlackWhiteObject
 from xenSplittingService.ServiceComponents import UnicodeStringRecognition
 # --------------------------
 
 
 # ------------------------------------
 class ContentSplit(object):
-    def __init__(self, data_path=os.path.join('data'), user_data_path=None):
+    def __init__(self, data_path='data', user_data_path=None, enable_user_data=False):
         source_path = str(os.path.abspath(__file__))
         source_path = source_path.split(os.path.sep)
         while source_path[-1] != 'xenSplittingService':
@@ -20,8 +21,7 @@ class ContentSplit(object):
             source_path.remove('xenSplittingService')
         self.source_path = os.path.sep.join(source_path)
         self.running_path = os.getcwd()
-        self.user_data_path = user_data_path    # TODO: check and modify user_data_path
-        self.data_path = data_path
+        self.data_path = os.path.join(self.source_path, data_path)
         self.path_predefined = dict()
         self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
                                                                 'DeveloperDefinedAdjustment.txt')
@@ -33,10 +33,18 @@ class ContentSplit(object):
                                                                        'PackageDefinedKeywordBlacklist.xlsx')
         self.path_predefined['CompanyPartitionExpression'] = os.path.join(self.source_path, self.data_path,
                                                                           'PackageDefinedPartitionExpression.xlsx')
-        # self.path_userdefined = dict()
-        # self.path_userdefined['CompanyTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_type_whitelist.csv')
-        # self.path_userdefined['CompanyServiceTypeWhitelist'] = os.path.join(self.running_path, 'User_defined_company_service_type_whitelist.csv')
-        # self.path_userdefined['CompanyKeywordBlacklist'] = os.path.join(self.running_path, 'User_defined_company_keyword_blacklist.csv')
+        if user_data_path != None:
+            self.user_data_path = user_data_path
+        else:
+            self.user_data_path = self.running_path
+        if enable_user_data is True:
+            self.path_userdefined = dict()
+            self.path_userdefined['CompanyTypeWhitelist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyTypeWhitelist.xlsx')
+            self.path_userdefined['CompanyServiceTypeWhitelist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyServiceTypeWhitelist.xlsx')
+            self.path_userdefined['CompanyKeywordBlacklist'] = \
+                os.path.join(self.user_data_path, 'UserDefinedCompanyKeywordBlacklist.xlsx')
         # --------
         self.path_pre_usr_identified_dict = None
         self.path_company_service_type_whitelist = None
@@ -48,7 +56,7 @@ class ContentSplit(object):
         self.path_usr_defined_company_service_type_whitelist = None
         self.path_usr_defined_company_keyword_blacklist = None
         self.ustring_checker = UnicodeStringRecognition()
-        self.land_name_checker = Toponym(data_path=self.data_path)
+        self.toponym_checker = Toponym(data_path=self.data_path)
         self.checker = list()
         self.list_tag = ['package', 'user']
         self.load_checking_lists()
@@ -412,6 +420,7 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     # -----------------------------------
+    spliter = ContentSplit(data_path=os.path.join('xenSplittingService', 'data'))
     # -----------------------------------
     # -----------------------------------
     end_time = time.time()
