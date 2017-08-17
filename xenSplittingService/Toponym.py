@@ -4,8 +4,7 @@
 
 import os
 import re
-import pandas as pd
-from xenSplittingService.ServiceComponents import load_excel, MultiTable
+from xenSplittingService.ServiceComponents import load_excel, ExcelTable
 ######################################
 # 把每个国家的地名组织成 ToponymStructure 定义的树状结构，
 # 之后的的扩展只需要用 Toponym + countryname 的类定义新加入国家的

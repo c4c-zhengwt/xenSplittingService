@@ -1,6 +1,9 @@
 # -*- encoding: UTF-8 -*-
 # In this document a CharacterRecognition object is defined and used for identifying language of words
 # All names should be encoded with utf-8
+# ------------------------------------
+from xenSplittingService.DataStructure import CountingDict
+# ------------------------------------
 
 
 # ------------------------------------
@@ -75,6 +78,12 @@ class UnicodeCharacterRecognition(object):
 
 # ------------------------------------
 class UnicodeStringRecognition(UnicodeCharacterRecognition):
+    def check_ustring_type(self, ustring):
+        tag_dict = CountingDict()
+        for char in ustring:
+            tag_dict.count(self.check_uchar_type(char))
+        return tag_dict.sort_by_weights(inverse=True)[0]
+
     def full_2_half(self, ustring):
         """把字符串全角转半角"""
         return ''.join([self.fullwidth_to_halfwidth(uchar) for uchar in ustring])

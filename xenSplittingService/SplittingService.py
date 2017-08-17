@@ -5,8 +5,7 @@ import os
 import re
 import jieba
 from xenSplittingService.Toponym import Toponym
-from xenSplittingService.WordRecognition import UnicodeCharacterRecognition
-from xenSplittingService.ServiceComponents import MultiList, ExcelFileWriter, load_excel
+from xenSplittingService.WordRecognition import UnicodeStringRecognition
 # --------------------------
 
 
@@ -48,7 +47,7 @@ class ContentSplit(object):
         self.path_usr_defined_company_type_whitelist = None
         self.path_usr_defined_company_service_type_whitelist = None
         self.path_usr_defined_company_keyword_blacklist = None
-        self.char_checker = UnicodeCharacterRecognition()
+        self.string_checker = UnicodeStringRecognition()
         self.land_name_checker = Toponym(data_path=self.data_path)
         self.checker = list()
         self.list_tag = ['package', 'user']
