@@ -208,10 +208,10 @@ class ExcelObject(object):
     def tags(self):
         return self.data_list_for_search.keys()
 
-    def add(self, colume: str, element: str):
-        language = UnicodeStringRecognition().check_ustring_type(colume)
+    def add(self, column: str, element: str):
+        language = UnicodeStringRecognition().check_ustring_type(column)
         if language not in self.excel_file:
-            raise IndexError('ExcelObject.add: colume {0} not in table'.format(colume))
+            raise IndexError('ExcelObject.add: colume {0} not in table'.format(column))
         else:
             if element in self.data_list_for_search:
                 pass
@@ -219,13 +219,13 @@ class ExcelObject(object):
                 table = self.excel_file[language]
                 flag = False
                 for line_index in range(table.shape[0]):
-                    if type(table.loc[line_index, colume]) != str:
-                        self.excel_file[language].loc[line_index, colume] = element
+                    if type(table.loc[line_index, column]) != str:
+                        self.excel_file[language].loc[line_index, column] = element
                         flag = True
                     else:
                         continue
                 if flag is False:
-                    self.excel_file[language].loc[table.shape[0], colume] = element
+                    self.excel_file[language].loc[table.shape[0], column] = element
                 self.__initiate_list_for_search__()
 
     def save(self, save_as=str()):
@@ -288,8 +288,8 @@ if __name__ == '__main__':
     # print(type(data))
     # data = ExcelTable(excel_path='../data/PackageDefinedPartitionExpression.xlsx')
     data = ExcelObject(excel_path='../test.xlsx')
-    data.add(colume='分店', element='test01')
-    data.add(colume='分行', element='test02')
+    data.add(column='分店', element='test01')
+    data.add(column='分行', element='test02')
     print(data.excel_file['chinese'])
     data.save(save_as='../test.xlsx')
     # ------------------------------

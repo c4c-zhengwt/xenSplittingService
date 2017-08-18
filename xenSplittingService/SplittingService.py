@@ -97,105 +97,36 @@ class ContentSplit(object):
                     BlackWhiteObject(excel_path=self.path_userdefined['CompanyServiceTypeWhitelist'])
                 self.keywords_usrdefined['CompanyKeywordBlacklist'] = \
                     BlackWhiteObject(excel_path=self.path_userdefined['CompanyKeywordBlacklist'])
+                for word in self.keywords_usrdefined['CompanyTypeWhitelist'].tags():
+                    jieba.add_word(word, freq=int(50 * len(word)), tag='n')
+                for word in self.keywords_usrdefined['CompanyServiceTypeWhitelist'].tags():
+                    jieba.add_word(word, freq=100, tag='n')
+                for word in self.keywords_usrdefined['CompanyKeywordBlacklist'].tags():
+                    jieba.add_word(word, freq=100, tag='n')
             except:
+                # TODO: initiate user defined files
                 pass
-
-    def __load_keyword_list__(self, package_defined_csv, usr_defined_csv=None, warning_pack_info=''):
-        __config_list__ = set()
-        try:
-            __file_content__ = load_csv(package_defined_csv)
-            for __line__ in __file_content__:
-                __config_list__.update(__line__)
-        except:
-            self.checker.append(warning_pack_info)
-        try:
-            __file_content__ = load_csv(usr_defined_csv)
-            for __line__ in __file_content__:
-                __config_list__.update(__line__)
-        except FileNotFoundError:
-            __file__ = open(usr_defined_csv, 'w', encoding='utf-8')
-            __file__.close()
-        except TypeError:
-            pass
-        __config_list__ = frozenset(__config_list__)
-        return __config_list__
 
     # adding words to blacklists and whitelist
-    def __add_into_list__(self, new_item, target_list, origin_list, typo_list=frozenset(), force_add=False):
-        if new_item not in origin_list:
-            if new_item not in typo_list or force_add:
-                target_list.append(new_item)
-                return True
-            else:
-                return False
-        else:
-            return False
-
     def __specified_adding_type__(self, new_term, target_set, file_path,
                                   typo_list=frozenset(), force_add_config=False):
-        new_list = list()
-        if type(new_term) is str:
-            self.__add_into_list__(re.sub(r'\W', '', new_term), new_list, target_set,
-                                   typo_list, force_add=force_add_config)
-        elif type(new_term) is list:
-            for __item__ in set(new_term):
-                self.__add_into_list__(re.sub(r'\W', '', __item__), new_list, target_set,
-                                       typo_list=typo_list, force_add=force_add_config)
-        else:
-            pass
-        new_list = set(new_list)
-        if len(new_list) > 0:
-            try:
-                __usr_defined__ = load_csv(file_path)
-                for __line__ in __usr_defined__:
-                    new_list.update(__line__)
-            except FileNotFoundError:
-                pass
-            save_csv_2d(file_path, [[var] for var in new_list])
-        new_list.update(target_set)
-        return frozenset(new_list)
+        pass
 
     def __load_partition_expression__(self):
-        __csvfile__ = open(self.path_company_partition_expressions_csv, 'r', encoding='utf-8', newline='')
-        __spam_writer__ = csv.reader(__csvfile__,
-                                delimiter=',',
-                                quotechar='"'
-                                )
-        __list_in_list__ = [var for var in __spam_writer__]
-        __csvfile__.close()
-        self.partition_expression_dict = dict()
-        self.partition_expression_set = set()
-        for __item__ in __list_in_list__:
-            self.partition_expression_set.update(__item__)
-            if len(__item__) > 1:
-                for __word__ in range(1, len(__item__)):
-                    self.partition_expression_dict[__item__[__word__]] = __item__[0]
+        pass
 
     def show_check_info(self):
         for info in self.checker:
             print(info)
 
     def add_company_type(self, new_company_type, force_add=False):
-        self.company_type_whitelist = \
-            self.__specified_adding_type__(new_company_type, self.company_type_whitelist,
-                                           self.path_usr_defined_company_type_whitelist,
-                                           typo_list=self.company_service_type_whitelist,
-                                           force_add_config=force_add)
+        pass
 
     def add_company_service_type(self, new_company_service_type, force_add=False):
-        self.company_service_type_whitelist = \
-            self.__specified_adding_type__(new_company_service_type,
-                                           self.company_service_type_whitelist,
-                                           self.path_usr_defined_company_service_type_whitelist,
-                                           typo_list=self.company_type_whitelist,
-                                           force_add_config=force_add)
+        pass
 
     def add_blocked_company_keyword(self, new_block_word, force_add=False):
-        self.company_keyword_blacklist = \
-            self.__specified_adding_type__(new_block_word,
-                                           self.company_keyword_blacklist,
-                                           self.path_usr_defined_company_keyword_blacklist,
-                                           force_add_config=force_add)
+        pass
 
     def __show_checkers__(self):
         if len(self.checker) >= 1:
@@ -205,30 +136,8 @@ class ContentSplit(object):
         else:
             pass
 
-    def is_eng_name(self, name, possi=0.6):
-        name = re.sub(r'\W', "", name)
-        count = 0
-        for char in name:
-            if self.__is_english_char(char) is True:
-                count += 1
-        if count/len(name) >= possi:
-            return True
-        else:
-            return False
 
-    def is_chi_name(self, name, possi=0.6):
-        name = re.sub(r'\W', "", name)
-        count = 0
-        for char in name:
-            if self.__is_chinese_char(char) is True:
-                count += 1
-        if count/len(name) >= possi:
-            return True
-        else:
-            return False
-
-
-    def split_firmname(self, name, enable_english_output=False, enable_digit_output=False):
+    def split_firm_name(self, name, enable_english_output=False, enable_digit_output=False):
         if self.is_chi_name(name, possi=0.6):
             return self.split_firmname_zh(name, enable_english_output)
         elif self.is_eng_name(name, possi=0.6):

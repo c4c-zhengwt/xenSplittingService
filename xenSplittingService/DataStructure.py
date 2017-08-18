@@ -4,37 +4,6 @@
 
 
 # --------------------------------------------------------
-class MultiList(object):
-    def __init__(self, components: list):
-        self.lists = dict()
-        for tag in components:
-            if type(tag) != str:
-                raise ValueError('MultiList.__init__(components): expected str in parameter components')
-            self.lists[tag] = list()
-
-    def contain(self, element):
-        flag = False
-        for tag in self.lists:
-            if element in self.lists[tag]:
-                flag = True
-        return flag
-
-    def tags(self):
-        return self.lists.keys()
-
-    def append(self, tag: str, element):
-        try:
-            self.lists[tag].append(element)
-        except KeyError:
-            raise KeyError('MultiList.append(tag, x): tag not in MultiList')
-
-    def remove(self, tag: str, element):
-        try:
-            self.lists[tag].remove(element)
-        except KeyError:
-            raise KeyError('MultiList.remove(tag, x): tag not in MultiList')
-        except ValueError:
-            raise ValueError('MultiList.remove(tag, x): x not in MultiList')
 # --------------------------------------------------------
 
 
