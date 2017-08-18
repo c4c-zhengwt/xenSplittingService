@@ -24,6 +24,7 @@ class ContentSplit(object):
         self.data_path = os.path.join(self.source_path, data_path)
         self.path_predefined = dict()
         self.path_userdefined = dict()
+        self.checker = list()
         if user_data_path is not None:
             self.user_data_path = user_data_path
         else:
@@ -46,11 +47,15 @@ class ContentSplit(object):
         # --------
         self.keywords_predefined = dict()
         self.keywords_usrdefined = dict()
-        self.__load_black_white_list__()
+        self.__loading_black_white_list__()
+        # TODO: load partition expression
         # --------
-        self.checker = list()
+        try:
+            jieba.load_userdict(self.path_predefined['DeveloperDefined'])
+        except FileNotFoundError:
+            self.checker.append('File data' + str(os.path.sep) + 'DeveloperDefinedAdjustment.txt '
+                                'does not exit, but this error does not affect service function that much')
         self.list_tag = ['package', 'user']
-        self.load_checking_lists()
 
     def __define_path_dict__(self):
         self.path_predefined['DeveloperDefined'] = os.path.join(self.source_path, self.data_path,
@@ -71,45 +76,29 @@ class ContentSplit(object):
             self.path_userdefined['CompanyKeywordBlacklist'] = \
                 os.path.join(self.user_data_path, 'UserDefinedCompanyKeywordBlacklist.xlsx')
 
-    def __load_black_white_list__(self):
+    def __loading_black_white_list__(self):
         self.keywords_predefined['CompanyServiceTypeWhitelist'] = \
             BlackWhiteObject(excel_path=self.path_predefined['CompanyServiceTypeWhitelist'])
         self.keywords_predefined['CompanyTypeWhitelist'] = \
             BlackWhiteObject(excel_path=self.path_predefined['CompanyTypeWhitelist'])
-
-    def load_checking_lists(self):
-        try:
-            jieba.load_userdict(self.path_predefined['DeveloperDefined'])
-        except FileNotFoundError:
-            self.checker.append('File data' + str(os.path.sep) + 'DeveloperDefinedAdjustment.txt '
-                                'does not exit, but this error does not affect service function that much')
-            self.__load_partition_expression__()
-            # initial company_service_type_whitelist
-            self.company_service_type_whitelist = \
-                self.__load_keyword_list__(self.path_company_service_type_whitelist,
-                                           self.path_usr_defined_company_service_type_whitelist,
-                                           warning_pack_info='Whitelist data/package_com_service_type_whitelist.csv '
-                                                            'can not be loaded correctly')
-            # initial company type whitelist
-            self.company_type_whitelist = \
-                self.__load_keyword_list__(self.path_company_type_whitelist,
-                                           self.path_usr_defined_company_type_whitelist,
-                                           warning_pack_info='Whitelist data/package_com_type_whitelist.csv '
-                                                            'can not be loaded correctly')
-            # initial company_keyword_blacklist
-            self.company_keyword_blacklist = \
-                self.__load_keyword_list__(self.path_company_keyword_blacklist,
-                                           self.path_usr_defined_company_keyword_blacklist,
-                                           warning_pack_info='Blacklist data/package_com_keyword_blacklist.csv '
-                                                            'can not be loaded correctly')
-        # add name in company type white list to jieba dict so that they can be outputed.
-        for __item__ in self.company_type_whitelist:
-            jieba.add_word(__item__, freq=int(50*len(__item__)), tag='n')
-        for __item__ in self.company_service_type_whitelist:
-            jieba.add_word(__item__, freq=100, tag='n')
-        for __item__ in self.partition_expression_set:
-            jieba.add_word(__item__, freq=100, tag='n')
-        self.__show_checkers__()
+        self.keywords_predefined['CompanyKeywordBlacklist'] = \
+            BlackWhiteObject(excel_path=self.path_predefined['CompanyKeywordBlacklist'])
+        for word in self.keywords_predefined['CompanyTypeWhitelist'].tags():
+            jieba.add_word(word, freq=int(50 * len(word)), tag='n')
+        for word in self.keywords_predefined['CompanyServiceTypeWhitelist'].tags():
+            jieba.add_word(word, freq=100, tag='n')
+        for word in self.keywords_predefined['CompanyKeywordBlacklist'].tags():
+            jieba.add_word(word, freq=100, tag='n')
+        if self.enable_user_data is True:
+            try:
+                self.keywords_usrdefined['CompanyTypeWhitelist'] = \
+                    BlackWhiteObject(excel_path=self.path_userdefined['CompanyTypeWhitelist'])
+                self.keywords_usrdefined['CompanyServiceTypeWhitelist'] = \
+                    BlackWhiteObject(excel_path=self.path_userdefined['CompanyServiceTypeWhitelist'])
+                self.keywords_usrdefined['CompanyKeywordBlacklist'] = \
+                    BlackWhiteObject(excel_path=self.path_userdefined['CompanyKeywordBlacklist'])
+            except:
+                pass
 
     def __load_keyword_list__(self, package_defined_csv, usr_defined_csv=None, warning_pack_info=''):
         __config_list__ = set()
@@ -181,6 +170,10 @@ class ContentSplit(object):
             if len(__item__) > 1:
                 for __word__ in range(1, len(__item__)):
                     self.partition_expression_dict[__item__[__word__]] = __item__[0]
+
+    def show_check_info(self):
+        for info in self.checker:
+            print(info)
 
     def add_company_type(self, new_company_type, force_add=False):
         self.company_type_whitelist = \

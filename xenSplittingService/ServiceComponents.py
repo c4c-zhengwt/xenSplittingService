@@ -205,6 +205,9 @@ class ExcelObject(object):
     def contain(self, element: str):
         return element in self.data_list_for_search
 
+    def tags(self):
+        return self.data_list_for_search.keys()
+
     def add(self, colume: str, element: str):
         language = UnicodeStringRecognition().check_ustring_type(colume)
         if language not in self.excel_file:
