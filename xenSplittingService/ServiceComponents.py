@@ -1,8 +1,8 @@
 # -*- encoding: UTF-8 -*-
 # --------------------------------------------------------
 import pandas as pd
+
 from xenSplittingService.DataStructure import CountingDict
-# --------------------------------------------------------
 
 
 # --------------------------------------------------------
@@ -20,22 +20,25 @@ class UnicodeCharacterRecognition(object):
         else:
             return 'other'
 
-    def __is_chinese_char__(self, uchar):
-        if u'\u4e00' <= uchar <= u'\u9fa5':
+    @staticmethod
+    def __is_chinese_char__(uchar):
+        if u'\u4e00' <= uchar and uchar <= u'\u9fa5':
             return True
         else:
             return False
 
-    def __is_digit__(self, uchar):
+    @staticmethod
+    def __is_digit__(uchar):
         """判断一个unicode是否是数字"""
-        if u'\u0030' <= uchar <= u'\u0039':
+        if u'\u0030' <= uchar and uchar <= u'\u0039':
             return True
         else:
             return False
 
-    def __is_alphabetical_char__(self, uchar):
+    @staticmethod
+    def __is_alphabetical_char__(uchar):
         """判断一个unicode是否是英文字母"""
-        if (u'\u0041' <= uchar <= u'\u005a') or (u'\u0061' <= uchar <= u'\u007a'):
+        if (u'\u0041' <= uchar and uchar <= u'\u005a') or (u'\u0061' <= uchar and uchar <= u'\u007a'):
             return True
         else:
             return False
@@ -47,7 +50,8 @@ class UnicodeCharacterRecognition(object):
         else:
             return False
 
-    def halfwidth_to_fullwidth(self, uchar):
+    @staticmethod
+    def halfwidth_to_fullwidth(uchar):
         """半角转全角"""
         inside_code = ord(uchar)
         if inside_code < 0x0020 or inside_code > 0x7e:  # 不是半角字符就返回原来的字符
@@ -58,7 +62,8 @@ class UnicodeCharacterRecognition(object):
             inside_code += 0xfee0
         return chr(inside_code)
 
-    def fullwidth_to_halfwidth(self, uchar):
+    @staticmethod
+    def fullwidth_to_halfwidth(uchar):
         """全角转半角"""
         inside_code = ord(uchar)
         if inside_code == 0x3000:
@@ -167,6 +172,8 @@ class ExcelObject(object):
                                                       false_values=false_values, engine=engine, squeeze=squeeze)
         self.data_list_for_search = dict()
         self.__initiate_list_for_search__()
+        self.data_belongings_for_search = dict()
+        self.__initiate_belongings_for_search__()
 
     def __initiate_words_transformation_dict__(self):
         raise NameError('ExcelObject.__initiate_words_transformation_dict__: method not defined')
@@ -188,6 +195,22 @@ class ExcelObject(object):
                         else:
                             self.data_list_for_search[cell] = 0
 
+    def __initiate_belongings_for_search__(self):
+        self.data_belongings_for_search = dict()
+        for table_key in self.excel_file:
+            pd_table = self.excel_file[table_key]
+            key_list = pd_table.keys()
+            for key in key_list:
+                if type(key) != str:
+                    continue
+                else:
+                    for line_index in range(pd_table.shape[0]):
+                        cell = pd_table.loc[line_index, key]
+                        if type(cell) != str:
+                            continue
+                        else:
+                            self.data_belongings_for_search[cell] = key
+
     def get(self, sheetname='', language=''):
         if sheetname == '' and language == '':
             raise ValueError('ExcelObject.get: parameter sheetname and language can be empty at the same time')
@@ -204,6 +227,14 @@ class ExcelObject(object):
 
     def contain(self, element: str):
         return element in self.data_list_for_search
+
+    def find_belongings(self, element: str):
+        if element in self.data_belongings_for_search:
+            return self.data_belongings_for_search[element]
+        elif element not in self.data_belongings_for_search and element in self.data_list_for_search:
+            return element
+        else:
+            return None
 
     def tags(self):
         return self.data_list_for_search.keys()

@@ -47,7 +47,7 @@ class ContentSplit(object):
         # --------
         self.keywords_predefined = dict()
         self.keywords_usrdefined = dict()
-        self.__loading_black_white_list__()
+        self.__load_black_white_list__()
         # TODO: load partition expression
         # --------
         try:
@@ -76,7 +76,7 @@ class ContentSplit(object):
             self.path_userdefined['CompanyKeywordBlacklist'] = \
                 os.path.join(self.user_data_path, 'UserDefinedCompanyKeywordBlacklist.xlsx')
 
-    def __loading_black_white_list__(self):
+    def __load_black_white_list__(self):
         self.keywords_predefined['CompanyServiceTypeWhitelist'] = \
             BlackWhiteObject(excel_path=self.path_predefined['CompanyServiceTypeWhitelist'])
         self.keywords_predefined['CompanyTypeWhitelist'] = \
@@ -106,11 +106,6 @@ class ContentSplit(object):
             except:
                 # TODO: initiate user defined files
                 pass
-
-    # adding words to blacklists and whitelist
-    def __specified_adding_type__(self, new_term, target_set, file_path,
-                                  typo_list=frozenset(), force_add_config=False):
-        pass
 
     def __load_partition_expression__(self):
         pass
