@@ -5,10 +5,14 @@ import pandas as pd
 from xenSplittingService.DataStructure import CountingDict
 
 
-# --------------------------------------------------------
 class UnicodeCharacterRecognition(object):
     def __init__(self):
-        self.language_list = ['english', 'chinese', 'digit', 'other']
+        self.language_base = {
+            'english': 0,
+            'chinese': 1,
+            'digit': 2,
+            'other': 99,
+        }
 
     def check_uchar_type(self, uchar):
         if self.__is_chinese_char__(uchar):
@@ -73,10 +77,8 @@ class UnicodeCharacterRecognition(object):
         if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
             return uchar
         return chr(inside_code)
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 class UnicodeStringRecognition(UnicodeCharacterRecognition):
     def check_ustring_type(self, ustring):
         tag_dict = CountingDict()
@@ -95,21 +97,19 @@ class UnicodeStringRecognition(UnicodeCharacterRecognition):
     def identify_language(self, ustring):
         """Return the language of the string"""
         counter = dict()
-        for lang in self.language_list:
+        for lang in self.language_base:
             counter[lang] = 0
         for index_char in range(len(ustring)):
             ustring_type = self.check_uchar_type(ustring[index_char])
             counter[ustring_type] += 1
-        possible_key = self.language_list[-1]
+        possible_key = 'other'
         better_value = 0
         for key, value in counter:
             if value > better_value:
                 possible_key = key
         return possible_key
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 def load_excel(path, sheetname=0, header=0, skiprows=None, skip_footer=0, index_col=None, names=None,
                parse_cols=None, parse_dates=False, date_parser=None, na_values=None, thousands=None,
                convert_float=True, has_index_names=None, converters=None, dtype=None, true_values=None,
@@ -141,10 +141,8 @@ class ExcelFileWriter(object):
         self.writer.save()
         self.writer.close()
         del self
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 class ExcelObject(object):
     """
     ExcelTable
@@ -273,10 +271,8 @@ class ExcelObject(object):
                            freeze_panes=None)
         writer.save()
         writer.close()
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 class BlackWhiteObject(ExcelObject):
     """
     ExcelTable defined to match the white/black lists
@@ -287,10 +283,8 @@ class BlackWhiteObject(ExcelObject):
         self.sheetname2language_dict['中文'] = 'chinese'  # initiate sheetname - language transformation
         for key in self.sheetname2language_dict:
             self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 class ToponymTable(ExcelObject):
     """
     ToponymTable defined to match the toponym
@@ -304,10 +298,8 @@ class ToponymTable(ExcelObject):
         self.sheetname2language_dict['中国行政区'] = 'chinese'  # initiate sheetname - language transformation
         for key in self.sheetname2language_dict:
             self.language2sheetname_dict[self.sheetname2language_dict[key]] = key
-# --------------------------------------------------------
 
 
-# --------------------------------------------------------
 if __name__ == '__main__':
     import time
     start_time = time.time()

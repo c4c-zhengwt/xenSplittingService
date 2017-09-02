@@ -60,7 +60,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -120,12 +120,12 @@ setup(
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[('data', ['data/DeveloperDefinedAdjustment.txt',
-                          'data/package_com_keyword_blacklist.csv',
-                          'data/package_com_service_type_whitelist.csv',
-                          'data/package_com_type_whitelist.csv',
-                          'data/package_com_partition_expression.csv',
-                          'data/XingZhenQu.csv']),
+    data_files=[('data', ['DeveloperDefinedAdjustment.txt',
+                          'PackageDefinedFirmTypeWhitelist.xlsx',
+                          'PackageDefinedKeywordBlacklist.xlsx',
+                          'PackageDefinedPartitionExpression.xlsx',
+                          'PackageDefinedServiceTypeWhitelist.xlsx',
+                          'ToponymInfomation.xlsx']),
                 ('.', ['LICENSE',
                        'README.md'])],
 
