@@ -187,7 +187,7 @@ if __name__ == '__main__':
     import json
     spliter = ContentSplit(data_path=os.path.join('xenSplittingService', 'data'))
     com = json.load(open(os.path.join('..', 'data', 'com.json'), 'r'))
-    # print(com['RECORDS'])
+    print(com['RECORDS'])
     for record in com['RECORDS']:
         company_name = record['customer_name']
         spliited_list = spliter.split_firm_name(company_name, unable_digit=True, unable_english=True)

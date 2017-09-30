@@ -9,46 +9,39 @@ from xenSplittingService.SplittingService import ContentSplit
 
 @cherrypy.expose
 class webSplitService(object):
-    def __init__(self):
-        source_path = os.path.abspath(__file__)
-        source_path = source_path.split(os.path.sep)
-        while source_path[-1] != 'xenSplittingService':
-            source_path.pop()
-        while source_path.count('xenSplittingService') >= 2:
-            source_path.remove('xenSplittingService')
-        running_path = source_path
-        running_path.append('samples')
-        running_path = os.path.sep.join(running_path)
-        os.chdir(running_path)
-        self.splitter = ContentSplit()
+    def __init__(self, folder_path: str):
+        self.splitter = ContentSplit(data_path=folder_path)
 
     @cherrypy.tools.accept(media='text/plain')
     # def GET(self):
     #     return 'Please use method POST'
-    def GET(self, words, method, enable_english_output, enable_digit_output):
+    def GET(self, words, method, unable):
+        unable_char_list = str(unable).split('|')
+        unable_list = list()
+        for char in unable_char_list:
+            if char not in self.splitter.ustring_checker.language_base:
+                print('warning: wrong unable char_type {0:s}'.format(char))
+            else:
+                unable_list.append(char)
         if int(method) == 0:
             cherrypy.session['my_string'] = \
-                json.dumps({'content': self.splitter.split(words,
-                                                           enable_english_output=bool(enable_english_output),
-                                                           enable_digit_output=bool(enable_digit_output)
-                                                           )})
+                json.dumps({'content': self.splitter.split(words)})
         elif int(method) == 1:
             cherrypy.session['my_string'] = \
-                json.dumps({'content': self.splitter.split_firmname(words,
-                                                                    enable_english_output=bool(enable_english_output),
-                                                                    enable_digit_output=bool(enable_digit_output))})
-        elif int(method) == 9:
-            self.splitter.add_blocked_company_keyword(words, force_add=False)
-        elif int(method) == 8:
-            self.splitter.add_company_service_type(words, force_add=False)
-        elif int(method) == 7:
-            self.splitter.add_company_type(words, force_add=False)
+                json.dumps({'content': self.splitter.split_firm_name(words)})
+        # elif int(method) == 9:
+        #     self.splitter.add_blocked_company_keyword(words, force_add=False)
+        # elif int(method) == 8:
+        #     self.splitter.add_company_service_type(words, force_add=False)
+        # elif int(method) == 7:
+        #     self.splitter.add_company_type(words, force_add=False)
         else:
-            cherrypy.session['my_string'] = 'Not the legal method'
+            cherrypy.session['my_string'] = \
+                json.dumps({'content': ''})
         return cherrypy.session['my_string']
 
 if __name__ == '__main__':
-    root = webSplitService()
+    root = webSplitService(folder_path='data')
     conf = {
         '/': {
             'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
